@@ -166,6 +166,8 @@ function hLuz(recibo,smi){return recibo/(smi*14/12/173.3);}
 /* ---------- Remedios en portada: una actividad distinta en cada visita ---------- */
 var acts=Remedios.actividades,act=acts[Math.floor(Math.random()*acts.length)];
 try{var prev=sessionStorage.getItem("celv-act");if(prev===act)act=acts[(acts.indexOf(act)+1)%acts.length];sessionStorage.setItem("celv-act",act);}catch(e){}
+var esNoche=function(){var hh=new Date().getHours();return hh<7;};
+if(esNoche())act="dormir";
 $("remediosHoy").innerHTML=Remedios.figura({edad:81,anio:2026,actividad:act});
 $("piePortada").textContent="Remedios, 81 años, "+Remedios.pie(act);
 $("remediosApuntes").innerHTML=Remedios.apuntes();
@@ -363,7 +365,7 @@ function pintarTiles(){
     var chips=idx.map(function(i){var t=tiles[i],c=t[modo],col=c.p===null||c.p===undefined?"plano":tono(estado(c.p,c.pt?0.05:0.5),t.bueno);if(col==="sube")gS++;else if(col==="baja")gB++;var fr=FRECUENTES.indexOf(t.blk)>=0;if(esHoy(t.act)||esNuevo(t.act,fr))hayNuevo=true;
       return '<span class="chip-g">'+ico(t.ico)+'<span class="cn">'+CORTO[t.id]+'</span>'+pctTag(c,t.bueno).replace('class="pct','class="pct mini')+'</span>';}).join("");
     var ab=!!abiertos[g[0]];
-    return '<section class="grupo'+(ab?' abierto':'')+'" data-g="'+g[0]+'"><button type="button" class="g-cab" aria-expanded="'+ab+'"><span class="g-ico">'+ico(g[1])+'</span><span class="g-tit"><b>'+g[2]+(hayNuevo?' <i class="g-nuevo" title="Hay datos nuevos">●</i>':'')+'</b><small>'+(gS?gS+(gS===1?' empeora':' empeoran'):'')+(gS&&gB?' · ':'')+(gB?gB+(gB===1?' mejora':' mejoran'):'')+(!gS&&!gB?'Sin cambios':'')+'</small></span><span class="g-chips marq">'+chips+'</span><span class="g-flecha" aria-hidden="true"><span class="ft"><span class="fc">Ver fichas</span><span class="fa">Plegar</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></button>'+
+    return '<section class="grupo'+(ab?' abierto':'')+'" data-g="'+g[0]+'"><button type="button" class="g-cab" aria-expanded="'+ab+'"><span class="g-ico">'+ico(g[1])+'</span><span class="g-tit"><b>'+g[2]+(hayNuevo?' <i class="g-nuevo" title="Hay datos nuevos">●</i>':'')+'</b><small>'+(gS?gS+(gS===1?' empeora':' empeoran'):'')+(gS&&gB?' · ':'')+(gB?gB+(gB===1?' mejora':' mejoran'):'')+(!gS&&!gB?'Sin cambios':'')+'</small></span><span class="g-chips marq">'+chips+'</span><span class="g-flecha" aria-hidden="true"><span class="ft"><span class="fc">Ver</span><span class="fa">Plegar</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></button>'+
       '<div class="g-cuerpo grid"'+(ab?'':' hidden')+'>'+idx.map(function(i){return html1[i];}).join("")+'</div></section>';}).join("");
   $("veredicto").innerHTML=(nS?'<span class="b-mal" style="flex-grow:'+nS+'">▲ '+nS+(nS===1?' empeora':' empeoran')+'</span>':'')+(nP?'<span class="b-igual" style="flex-grow:'+nP+'" title="Sin cambio o sin dato">= '+nP+'</span>':'')+(nB?'<span class="b-bien" style="flex-grow:'+nB+'">▼ '+nB+(nB===1?' mejora':' mejoran')+'</span>':'');
   marquesinas($("mosaico"));
@@ -885,11 +887,28 @@ function alGrano(){
 document.addEventListener("click",function(e){if(e.target.closest("[data-grano]"))alGrano();});
 
 /* ---------- Remedios en el logo: parpadea y hace cosillas ---------- */
-(function(){if(reduceMov)return;function parpadeo(){var ls=document.querySelectorAll("svg.logo");ls.forEach(function(sv){sv.classList.add("parpadea");});setTimeout(function(){ls.forEach(function(sv){sv.classList.remove("parpadea");});},140);}
+(function(){if(reduceMov)return;function parpadeo(){var ls=document.querySelectorAll("svg.logo:not(.dormida)");ls.forEach(function(sv){sv.classList.add("parpadea");});setTimeout(function(){ls.forEach(function(sv){sv.classList.remove("parpadea");});},140);}
   function ciclo(){parpadeo();if(Math.random()<0.25)setTimeout(parpadeo,320);setTimeout(ciclo,2600+Math.random()*3800);}setTimeout(ciclo,1200);})();
 (function(){if(reduceMov)return;var acc=["a-abanico","a-guino","a-cabeza","a-risa","a-salto","a-abanico"];
-  function hacer(){var a=acc[Math.floor(Math.random()*acc.length)];document.querySelectorAll("svg.logo").forEach(function(sv){if(a==="a-salto"&&sv.classList.contains("mini"))return;sv.classList.add(a);setTimeout(function(){sv.classList.remove(a);},1900);});setTimeout(hacer,3500+Math.random()*4500);}
+  function hacer(){var a=acc[Math.floor(Math.random()*acc.length)];document.querySelectorAll("svg.logo").forEach(function(sv){if(sv.classList.contains("dormida"))return;if(a==="a-salto"&&sv.classList.contains("mini"))return;sv.classList.add(a);setTimeout(function(){sv.classList.remove(a);},1900);});setTimeout(hacer,3500+Math.random()*4500);}
   setTimeout(hacer,2500);})();
+
+/* ---------- Remedios del logo: saluda al pasar el ratón y duerme de 00 a 07 ---------- */
+(function(){
+  var SAL=["¡Hola, {hija}! Soy Remedios, encantada.","¡Hola! Soy Remedios, 81 años y todos los precios en la cabeza.","Pasa, {hija}, pasa, que te cuento cómo está la vida.","¡Hombre! Soy Remedios. ¿Un cafelito y miramos los precios?","Encantada, {hija}. Remedios, para servirte."];
+  var NOC=["Zzz… Que estoy durmiendo, {hija}. Vuelve a las siete, que hago café.","Zzz… ¿Qué horas son estas? Mañana te lo cuento todo.","Zzz… Los precios también duermen, {hija}. Bueno, la luz no.","Zzz… Remedios está en el quinto sueño. Los datos se actualizan por la mañana."];
+  function dormida(){return new Date().getHours()<7;}
+  document.querySelectorAll("svg.logo").forEach(function(sv){
+    var z=document.createElementNS("http://www.w3.org/2000/svg","g");z.setAttribute("class","l-zzz");
+    z.innerHTML='<text x="44" y="18" font-size="9">z</text><text x="50" y="11" font-size="12">z</text><text x="57" y="4" font-size="15">Z</text>';sv.appendChild(z);
+    var a=sv.parentNode;a.classList.add("con-globo");
+    var gl=document.createElement("span");gl.className="logo-globo";gl.setAttribute("role","tooltip");a.appendChild(gl);
+    a.addEventListener("mouseenter",function(){var l=dormida()?NOC:SAL;gl.textContent=rem(l[Math.floor(Math.random()*l.length)]);gl.classList.add("on");if(!dormida()&&!reduceMov){sv.classList.add("a-risa");setTimeout(function(){sv.classList.remove("a-risa");},1500);}});
+    a.addEventListener("mouseleave",function(){gl.classList.remove("on");});
+  });
+  function mirar(){document.querySelectorAll("svg.logo").forEach(function(sv){sv.classList.toggle("dormida",dormida());});}
+  mirar();setInterval(mirar,60000);
+})();
 
 /* ---------- Barra fija al hacer scroll ---------- */
 (function(){var bf=$("barraFija"),cab=document.querySelector(".ticker");var on=false;

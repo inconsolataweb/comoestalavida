@@ -72,6 +72,12 @@ var MANGA=function(e){return e.vestido;};
 function brazoIzqRegazo(e){return '<path d="M108 150c-10 22-6 46 18 54" stroke="'+MANGA(e)+'" stroke-width="20" fill="none" stroke-linecap="round"/><circle cx="132" cy="204" r="9" fill="'+PIEL+'"/>';}
 
 var ACT={
+  dormir:{pie:"echando una cabezadita",dib:function(e){return '<path d="M108 150c-6 22 4 40 30 44" stroke="'+MANGA(e)+'" stroke-width="20" fill="none" stroke-linecap="round"/><path d="M192 150c6 22-4 40-30 44" stroke="'+MANGA(e)+'" stroke-width="20" fill="none" stroke-linecap="round"/>'+
+    '<path d="M84 200q66-22 132 0l10 58q-76 18-152 0z" fill="#7C9BD6"/><path d="M84 200q66-22 132 0" stroke="#5876B8" stroke-width="3" fill="none"/><g fill="#F3F4F0" opacity=".8"><circle cx="110" cy="226" r="4"/><circle cx="150" cy="218" r="4"/><circle cx="190" cy="226" r="4"/><circle cx="128" cy="246" r="4"/><circle cx="172" cy="246" r="4"/></g>'+
+    '<circle cx="142" cy="196" r="9" fill="'+PIEL+'"/><circle cx="158" cy="196" r="9" fill="'+PIEL+'"/>'+
+    '<circle cx="139" cy="88" r="6.6" fill="#fff"/><circle cx="161" cy="88" r="6.6" fill="#fff"/><path d="M134 88q5 4 10 0M156 88q5 4 10 0" stroke="'+TINTA+'" stroke-width="2.2" fill="none" stroke-linecap="round"/>'+
+    '<path d="M144 104q6 3 12 0" stroke="'+PIEL+'" stroke-width="6"/><ellipse cx="150" cy="104" rx="3.4" ry="2.6" fill="#8E3A3A"/>'+
+    '<g class="r-zzz" font-family="Georgia,serif" font-weight="700" fill="#3558B8"><text x="188" y="64" font-size="16">z</text><text x="202" y="48" font-size="21">z</text><text x="219" y="28" font-size="27">Z</text></g>';}},
   abanico:{pie:"abanicándose en la puerta",dib:function(e){return brazoIzqRegazo(e)+'<path d="M190 148c16 10 22 24 22 34" stroke="'+MANGA(e)+'" stroke-width="20" fill="none" stroke-linecap="round"/><g class="r-abanico"><path d="M212 182L246 108A80 80 0 0 1 286 150Z" fill="#C8323C"/><path d="M212 182L246 108M212 182L258 112M212 182L268 120M212 182L277 131M212 182L283 141M212 182L286 150" stroke="#8E1E25" stroke-width="2"/><path d="M246 108A80 80 0 0 1 286 150" stroke="#D9A21B" stroke-width="5" fill="none"/><circle cx="256" cy="134" r="5" fill="#F3F4F0"/><circle cx="270" cy="146" r="4" fill="#F3F4F0"/><circle cx="212" cy="182" r="10" fill="'+PIEL+'"/></g>';}},
   punto:{pie:"haciendo punto",dib:function(e){return '<path d="M108 150c-6 22 4 40 30 44" stroke="'+MANGA(e)+'" stroke-width="20" fill="none" stroke-linecap="round"/><path d="M192 150c6 22-4 40-30 44" stroke="'+MANGA(e)+'" stroke-width="20" fill="none" stroke-linecap="round"/>'+
     '<path d="M150 204q30 40 92 52" stroke="#C8323C" stroke-width="2" fill="none"/><circle cx="246" cy="268" r="15" fill="#C8323C"/><path d="M234 262q12-6 24 4M236 272q10-4 20 4M240 258q6 10 2 22" stroke="#8E1E25" stroke-width="1.6" fill="none"/>'+
@@ -112,5 +118,5 @@ function apuntes(){
     '</svg>';
 }
 
-window.Remedios={figura:figura,apuntes:apuntes,actividades:Object.keys(ACT),pie:function(a){return (ACT[a]||ACT.abanico).pie;},era:era};
+window.Remedios={figura:figura,apuntes:apuntes,actividades:Object.keys(ACT).filter(function(k){return k!=="dormir";}),pie:function(a){return (ACT[a]||ACT.abanico).pie;},era:era};
 })();
