@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Patrick+Hand&family=Special+Elite&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Cpath d=%22M32 2l5 4 6-2 3 5 6 1 0 6 5 3-2 6 4 5-4 5 2 6-5 3 0 6-6 1-3 5-6-2-5 4-5-4-6 2-3-5-6-1 0-6-5-3 2-6-4-5 4-5-2-6 5-3 0-6 6-1 3-5 6 2z%22 fill=%22%23FFD21F%22 stroke=%22%231E2433%22 stroke-width=%222%22/%3E%3Ccircle cx=%2230%22 cy=%2212.5%22 r=%226%22 fill=%22%23F4F4F8%22 stroke=%22%231E2433%22 stroke-width=%221.6%22/%3E%3Ccircle cx=%2230%22 cy=%2231%22 r=%2214%22 fill=%22%23F6CDAA%22 stroke=%22%231E2433%22 stroke-width=%222%22/%3E%3Cpath d=%22M16.5 29c0-9 6.5-14 13.5-14s13.5 5 13.5 14c-3-5-7.5-7-13.5-7s-10.5 2-13.5 7z%22 fill=%22%23F4F4F8%22 stroke=%22%231E2433%22 stroke-width=%221.6%22/%3E%3Ccircle cx=%2225%22 cy=%2231%22 r=%223.8%22 fill=%22%23fff%22 stroke=%22%231E2433%22 stroke-width=%221.8%22/%3E%3Ccircle cx=%2235%22 cy=%2231%22 r=%223.8%22 fill=%22%23fff%22 stroke=%22%231E2433%22 stroke-width=%221.8%22/%3E%3Cpath d=%22M24.5 38q5.5 5 11 0%22 stroke=%22%231E2433%22 stroke-width=%222.2%22 fill=%22%23C8323C%22 stroke-linecap=%22round%22/%3E%3Cpath d=%22M44 50l14-12a17 17 0 0 1 1 16z%22 fill=%22%23E2554B%22 stroke=%22%231E2433%22 stroke-width=%221.6%22/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='15 4 30 41'%3E%3Ccircle cx='30' cy='12.5' r='6' fill='%23F4F4F8' stroke='%231E2433' stroke-width='1.8'/%3E%3Ccircle cx='30' cy='30' r='13' fill='%23F6CDAA' stroke='%231E2433' stroke-width='1.9'/%3E%3Cpath d='M17.5 28c0-9 6-13.5 12.5-13.5S42.5 19 42.5 28c-3-5-7-6.5-12.5-6.5S20.5 23 17.5 28z' fill='%23F4F4F8' stroke='%231E2433' stroke-width='1.7' stroke-linejoin='round'/%3E%3Ccircle cx='25' cy='30' r='3.6' fill='%23fff' stroke='%231E2433' stroke-width='1.7'/%3E%3Ccircle cx='35' cy='30' r='3.6' fill='%23fff' stroke='%231E2433' stroke-width='1.7'/%3E%3Cpath d='M28.6 30h2.8' stroke='%231E2433' stroke-width='1.5'/%3E%3Ccircle cx='25.4' cy='30.4' r='1.4' fill='%231E2433'/%3E%3Ccircle cx='35.4' cy='30.4' r='1.4' fill='%231E2433'/%3E%3Ccircle cx='21.5' cy='35.5' r='2.6' fill='%23F08A8A' opacity='.75'/%3E%3Ccircle cx='38.5' cy='35.5' r='2.6' fill='%23F08A8A' opacity='.75'/%3E%3Cpath d='M25 36.5q5 5 10 0' stroke='%231E2433' stroke-width='1.9' fill='%23C8323C' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
 /* Layout: cabecera con pestañas → ticker «Radio Patio» → Remedios con bocadillo fijo → mosaico de 16 indicadores con selector de comparación → secciones con icono, gráfico, estantes ilustrados → agenda → Antes y ahora a pantalla partida. */
 :root{
@@ -492,9 +492,17 @@ nav.secc a:hover{border-color:var(--anil);color:var(--anil)}
 @keyframes vapor{0%{opacity:0;transform:translateY(4px)}40%{opacity:1}100%{opacity:0;transform:translateY(-8px)}}
 .r-gotas circle{animation:gota 1s linear infinite}.r-gotas circle:nth-child(2){animation-delay:.33s}.r-gotas circle:nth-child(3){animation-delay:.66s}
 @keyframes gota{from{transform:translateY(-6px);opacity:1}to{transform:translateY(26px);opacity:0}}
+.r-notas text{animation:notas 2.4s ease-in-out infinite;opacity:0}.r-notas text:nth-child(2){animation-delay:.8s}.r-notas text:nth-child(3){animation-delay:1.6s}
+@keyframes notas{0%{opacity:0;transform:translate(0,6px)}30%,70%{opacity:1}100%{opacity:0;transform:translate(8px,-10px)}}
+.r-ondas path{animation:ondas 1.4s ease-in-out infinite;opacity:0}.r-ondas path:nth-child(2){animation-delay:.35s}
+@keyframes ondas{0%,100%{opacity:0}50%{opacity:1}}
+.r-tel{transform-box:fill-box;transform-origin:50% 100%;animation:charla 1.8s ease-in-out infinite}
+@keyframes charla{0%,100%{transform:rotate(0)}50%{transform:rotate(-3deg)}}
+.r-cuchillo{transform-box:fill-box;transform-origin:100% 50%;animation:pelar .45s ease-in-out infinite alternate}
+@keyframes pelar{from{transform:rotate(-8deg)}to{transform:rotate(10deg)}}
 .r-lapiz{transform-box:fill-box;transform-origin:50% 100%;animation:lapiz .5s ease-in-out infinite alternate}
 @keyframes lapiz{from{transform:translateX(-4px) rotate(-3deg)}to{transform:translateX(5px) rotate(3deg)}}
-@media (prefers-reduced-motion: reduce){.r-abanico,.r-aguja1,.r-aguja2,.r-lee,.r-vapor path,.r-gotas circle,.r-lapiz,.hoy{animation:none}.bocadillo .txt,.ticker #tickerTxt{transition:none}}
+@media (prefers-reduced-motion: reduce){.r-notas text,.r-ondas path,.r-tel,.r-cuchillo{animation:none;opacity:1}.r-abanico,.r-aguja1,.r-aguja2,.r-lee,.r-vapor path,.r-gotas circle,.r-lapiz,.hoy{animation:none}.bocadillo .txt,.ticker #tickerTxt{transition:none}}
 
 /* Secciones */
 section.bloque{padding:42px 0 8px;scroll-margin-top:10px}
@@ -555,6 +563,7 @@ section.bloque{padding:42px 0 8px;scroll-margin-top:10px}
 .tile.baja.n1{background:color-mix(in srgb,#2F7A45 4%,var(--tapia))} .tile.baja.n2{background:color-mix(in srgb,#2F7A45 8%,var(--tapia))} .tile.baja.n3{background:color-mix(in srgb,#2F7A45 13%,var(--tapia))}
 .g-cuerpo{grid-auto-rows:1fr;padding:6px 14px 16px}
 .g-cuerpo[hidden]{display:none}
+.grid.todo{grid-auto-rows:1fr}
 .mosaico{display:flex;flex-direction:column;gap:10px}
 .grupo{background:var(--tapia);border:1px solid var(--raya);border-radius:var(--r);transition:box-shadow .15s}
 .grupo.abierto{box-shadow:0 8px 22px rgba(0,0,0,.06);background:color-mix(in srgb,var(--plano-bg) 45%,var(--tapia))}
@@ -901,7 +910,7 @@ footer li{break-inside:avoid;margin-bottom:4px}
 <div class="barra-fija" id="barraFija" inert>
   <div class="wrap bf-in">
     <a class="bf-marca" href="#inicio" aria-label="Cómo está la vida, portada"><svg class="logo mini" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 2l5 4 6-2 3 5 6 1 0 6 5 3-2 6 4 5-4 5 2 6-5 3 0 6-6 1-3 5-6-2-5 4-5-4-6 2-3-5-6-1 0-6-5-3 2-6-4-5 4-5-2-6 5-3 0-6 6-1 3-5 6 2z" fill="#FFD21F" stroke="#1E2433" stroke-width="2" stroke-linejoin="round"/><g class="l-cuerpo"><path d="M19 58c1-9 5-14 11-14s10 5 11 14" fill="#3558B8" stroke="#1E2433" stroke-width="1.8"/><circle cx="26" cy="51" r="1.4" fill="#fff"/><circle cx="33" cy="54" r="1.4" fill="#fff"/><circle cx="31" cy="48.5" r="1.2" fill="#fff"/></g><g class="l-abanico"><path d="M41 44l14-12a17 17 0 0 1 1 16z" fill="#E2554B" stroke="#1E2433" stroke-width="1.6" stroke-linejoin="round"/><path d="M41 44l12-4M41 44l13 1M41 44l8-9" stroke="#1E2433" stroke-width="1" opacity=".55"/></g><g class="l-cabeza"><circle cx="30" cy="12.5" r="6" fill="#F4F4F8" stroke="#1E2433" stroke-width="1.6"/><circle cx="30" cy="30" r="13" fill="#F6CDAA" stroke="#1E2433" stroke-width="1.8"/><path d="M17.5 28c0-9 6-13.5 12.5-13.5S42.5 19 42.5 28c-3-5-7-6.5-12.5-6.5S20.5 23 17.5 28z" fill="#F4F4F8" stroke="#1E2433" stroke-width="1.6" stroke-linejoin="round"/><circle cx="25" cy="30" r="3.6" fill="#fff" stroke="#1E2433" stroke-width="1.6"/><circle cx="35" cy="30" r="3.6" fill="#fff" stroke="#1E2433" stroke-width="1.6"/><path d="M28.6 30h2.8" stroke="#1E2433" stroke-width="1.4"/><circle class="l-ojo l-ojoI" cx="25.4" cy="30.4" r="1.3" fill="#1E2433"/><circle class="l-ojo l-ojoD" cx="35.4" cy="30.4" r="1.3" fill="#1E2433"/><circle class="l-parpado l-pI" cx="25" cy="30" r="3.1" fill="#F6CDAA"/><circle class="l-parpado l-pD" cx="35" cy="30" r="3.1" fill="#F6CDAA"/><path class="l-pestana l-eI" d="M22.2 30.6q2.8 1.8 5.6 0" stroke="#1E2433" stroke-width="1.1" fill="none" stroke-linecap="round"/><path class="l-pestana l-eD" d="M32.2 30.6q2.8 1.8 5.6 0" stroke="#1E2433" stroke-width="1.1" fill="none" stroke-linecap="round"/><circle cx="21.5" cy="35.5" r="2.6" fill="#F08A8A" opacity=".75"/><circle cx="38.5" cy="35.5" r="2.6" fill="#F08A8A" opacity=".75"/><path class="l-boca" d="M25 36.5q5 5 10 0" stroke="#1E2433" stroke-width="1.8" fill="#C8323C" stroke-linecap="round" stroke-linejoin="round"/></g></svg><span class="marca mini"><span class="m1">Cómo está</span><span class="m2">la vida</span></span></a>
-    <nav class="bf-nav" aria-label="Páginas (barra fija)"><a href="#inicio">Hoy</a><a href="#antes-y-ahora">Antes y ahora</a><a href="#gaceta">La Gaceta</a><a href="#remedios">Remedios</a></nav>
+    <nav class="bf-nav" aria-label="Páginas (barra fija)"><a href="#inicio">Hoy</a><a href="#antes-y-ahora" title="Antes y ahora">Antes</a><a href="#gaceta">La Gaceta</a><a href="#remedios">Remedios</a></nav>
     <button type="button" class="btn-grano" data-grano><svg aria-hidden="true"><use href="#mini"/></svg>¡Al grano, Remedios!</button>
   </div>
 </div>
@@ -911,7 +920,7 @@ footer li{break-inside:avoid;margin-bottom:4px}
     <div class="centro-cab">
     <nav class="pestanas" aria-label="Páginas">
       <a href="#inicio" id="tab-inicio"><svg aria-hidden="true"><use href="#i-cesta"/></svg>Hoy</a>
-      <a href="#antes-y-ahora" id="tab-antes"><svg aria-hidden="true"><use href="#i-calendario"/></svg>Antes y ahora</a>
+      <a href="#antes-y-ahora" id="tab-antes"><svg aria-hidden="true"><use href="#i-calendario"/></svg>Antes</a>
       <a href="#gaceta" id="tab-gaceta"><svg aria-hidden="true"><use href="#i-periodico"/></svg>La Gaceta</a>
       <a href="#remedios" id="tab-remedios"><svg aria-hidden="true"><use href="#mini"/></svg>Remedios</a>
     </nav>
@@ -949,7 +958,7 @@ footer li{break-inside:avoid;margin-bottom:4px}
 
     <section aria-labelledby="h-mosaico">
       <div class="mos-cab">
-        <div><h2 id="h-mosaico">Lo de hoy, de un vistazo</h2><p class="sub-m">Abre un tema para ver sus tarjetas; pulsa una tarjeta para ver su evolución. <button type="button" class="link-btn" id="plegarTodo">Desplegar todo</button></p></div>
+        <div><h2 id="h-mosaico">Lo de hoy, de un vistazo</h2><p class="sub-m">Abre un tema o despliégalo todo; pulsa una tarjeta para ver su evolución. <button type="button" class="link-btn" id="plegarTodo">Desplegar todo</button></p></div>
         <div class="modo-wrap"><span class="lbl">Comparar con:</span><div class="modo" role="group" aria-label="Comparar con"><button type="button" data-modo="ant" aria-pressed="true">El dato anterior</button><button type="button" data-modo="anio" aria-pressed="false">Hace un año</button></div></div>
       </div>
       <div class="mosaico" id="mosaico"></div>
@@ -1208,7 +1217,7 @@ footer li{break-inside:avoid;margin-bottom:4px}
       <header class="cabecera-g">
         <div class="g-meta"><span id="gNum">–</span><span id="gFecha">–</span><span>Precio: 0 pesetas</span></div>
         <h1 class="g-titulo" id="gTitulo">La Gaceta del Patio</h1>
-        <p class="g-lema">Diario independiente de la silla de enea · Directora: Remedios · Se hace con los datos de hoy</p>
+        <p class="g-lema">Diario independiente del descansillo · Directora: Remedios · Se hace con los datos de hoy</p>
       </header>
       <div class="g-franja" id="gFranja"></div>
       <div class="g-portada2"><div class="g-principal" id="gPrincipal"></div><div class="g-remedios" id="gRemedios"></div></div>
@@ -1243,7 +1252,7 @@ footer li{break-inside:avoid;margin-bottom:4px}
 <section class="chat" id="chat" hidden aria-label="Pregúntale a Remedios">
   <header class="chat-cab"><svg aria-hidden="true"><use href="#mini"/></svg><div><b>Remedios</b><small>Responde con los datos de hoy</small></div><button type="button" class="chat-x" id="chatX" aria-label="Cerrar">×</button></header>
   <div class="chat-log" id="chatLog" aria-live="polite"></div>
-  <div class="chat-sug marq" id="chatSug" aria-label="Preguntas de ejemplo"></div>
+  <div class="chat-sug marq" data-vel="13" id="chatSug" aria-label="Preguntas de ejemplo"></div>
   <form class="chat-form" id="chatForm"><input id="chatIn" type="text" autocomplete="off" placeholder="Pregúntale algo a Remedios…" aria-label="Tu pregunta"><button type="submit">Enviar</button></form>
 </section>
 <div id="velo" class="velo" hidden><div class="ventana" role="dialog" aria-modal="true" aria-labelledby="vTitulo"><button type="button" class="cerrar" id="vCerrar" aria-label="Cerrar">×</button><div id="vCuerpo"></div></div></div>

@@ -39,9 +39,9 @@ function esHoy(iso){return iso===hoyISO;}
 /* «hoy»: dato actualizado hoy. «nuevo dato»: dato de referencia (mensual, trimestral…) publicado en los últimos 7 días.
    Los datos que cambian a diario o cada semana (luz, mayorista, Brent, carburantes) solo llevan «hoy». */
 var FRECUENTES=["luz","omie","brent","carburantes"],DIAS_NUEVO=7;
-function esNuevo(iso,frec){if(!iso||frec)return false;var d=dias(iso,hoyISO);return d>0&&d<=DIAS_NUEVO;}
+function esNuevo(iso,frec){if(!iso||frec)return false;var d=dias(iso,hoyISO);return d>=0&&d<=DIAS_NUEVO;}
 function horaGen(){try{return new Date(D.generado).toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit",timeZone:"Europe/Madrid"});}catch(e){return "";}}
-function badge(iso,frec){if(esHoy(iso))return '<span class="hoy" data-tip="Actualizado hoy a las '+horaGen()+'">hoy</span>';if(esNuevo(iso,frec)){var d=dias(iso,hoyISO);return '<span class="nuevo" data-tip="Dato nuevo: publicado '+(d===1?'ayer':'hace '+d+' días')+' ('+corto(iso)+')">nuevo dato</span>';}return "";}
+function badge(iso,frec){if(esHoy(iso)&&frec)return '<span class="hoy" data-tip="Actualizado hoy a las '+horaGen()+'">hoy</span>';if(esNuevo(iso,frec)){var d=dias(iso,hoyISO);return '<span class="nuevo" data-tip="Dato nuevo: llegó '+(d===0?'hoy':d===1?'ayer':'hace '+d+' días')+' ('+corto(iso)+')">nuevo dato</span>';}return "";}
 /* «Dato de hace X días» y cuándo llega el siguiente */
 function cuandoDato(iso){var d=dias(iso,hoyISO);return d<=0?"Dato de hoy":d===1?"Dato de ayer":d<45?"Dato de hace "+d+" días":"Dato de hace "+Math.round(d/30.4)+" meses";}
 function mesNombre(off){var f=fecha(hoyISO);f.setDate(1);f.setMonth(f.getMonth()+off);return f.toLocaleDateString("es-ES",{month:"long"});}
@@ -315,7 +315,7 @@ var modo="ant";
 var globo=$("globo");
 function cmpTxt(c,bueno){if(c.p===null||c.p===undefined)return '<span class="chg plano">sin dato</span>';var s=estado(c.p,c.pt?0.05:0.5);return '<span class="chg '+tono(s,bueno)+'">'+(s==="sube"?"▲ ":s==="baja"?"▼ ":"= ")+fmt(Math.abs(c.p),1)+(c.pt?" pt":" %")+'</span>';}
 function nivel(c){if(c.p===null||c.p===undefined)return 0;var m=Math.abs(c.p)/(c.pt?0.1:1);return m<0.5?0:m<3?1:m<10?2:3;}
-function pctTag(c,bueno){if(c.p===null||c.p===undefined)return '<span class="pct plano">sin dato</span>';var s=estado(c.p,c.pt?0.05:0.5),col=tono(s,bueno);return '<span class="pct n'+nivel(c)+' '+(col==="sube"?"mal":col==="baja"?"bien":"plano")+'">'+(c.p>0?"+":c.p<0?"−":"")+fmt(Math.abs(c.p),1)+(c.pt?" pt":" %")+'</span>';}
+function pctTag(c,bueno){if(c.p===null||c.p===undefined)return '<span class="pct plano">sin dato</span>';var s=estado(c.p,c.pt?0.05:0.5),col=tono(s,bueno);return '<span class="pct n'+nivel(c)+' '+(col==="sube"?"mal":col==="baja"?"bien":"plano")+'">'+(function(){var dd=(c.pt&&Math.abs(c.p)<0.095&&c.p!==0)?2:1,r=+Math.abs(c.p).toFixed(dd);return (r===0?"":c.p>0?"+":"−")+fmt(r,dd);})()+(c.pt?" pt":" %")+'</span>';}
 function explica(t,c,m){
   if(c.p===null||c.p===undefined)return "No hay un dato fiable de <b>"+(m==="anio"?"hace un año":c.k.toLowerCase())+"</b> para comparar "+t.t.toLowerCase()+".";
   var que=m==="anio"?"con hace un año":"con el dato anterior";
@@ -341,12 +341,13 @@ function marquesinas(raiz){
     if(set.scrollWidth>m.clientWidth+2){
       m.firstChild.innerHTML+='<span class="marq-set" aria-hidden="true">'+orig+'</span>';
       m.firstChild.lastChild.querySelectorAll("button").forEach(function(b){b.tabIndex=-1;});
-      m.style.setProperty("--dur",Math.max(10,set.scrollWidth/32)+"s");
+      m.style.setProperty("--dur",Math.max(10,set.scrollWidth/(+m.getAttribute("data-vel")||32))+"s");
       m.classList.add("mueve");m.classList.remove("quieta");
     }else m.classList.add("quieta");
   });
 }
 var _mqT;window.addEventListener("resize",function(){clearTimeout(_mqT);_mqT=setTimeout(function(){marquesinas();},200);});
+var vistaTodo=false;try{vistaTodo=localStorage.getItem("celv-todo")==="1";}catch(e){}
 function pintarTiles(){
   var nS=0,nB=0,nP=0;
   var html1=tiles.map(function(t,i){
@@ -360,7 +361,8 @@ function pintarTiles(){
       '<div class="cmp"><span class="ref">'+(modo==="anio"?"hace un año":"dato anterior")+' ('+c.k+(c.ref?": <b>"+c.ref+"</b>":"")+')</span></div>'+
       (t.sp?spark(t.sp,css("--anil")):"")+'<div class="nota"><span>'+t.n+'</span><u>Ver más</u></div></button>';
   });
-  $("mosaico").innerHTML=GRUPOS.map(function(g){
+  if(vistaTodo){$("mosaico").innerHTML='<div class="grid todo">'+html1.join("")+'</div>';}
+  else $("mosaico").innerHTML=GRUPOS.map(function(g){
     var idx=g[3].map(function(id){return tiles.findIndex(function(t){return t.id===id;});}).filter(function(i){return i>=0;});
     var gS=0,gB=0,hayNuevo=false;
     var chips=idx.map(function(i){var t=tiles[i],c=t[modo],col=c.p===null||c.p===undefined?"plano":tono(estado(c.p,c.pt?0.05:0.5),t.bueno);if(col==="sube")gS++;else if(col==="baja")gB++;var fr=FRECUENTES.indexOf(t.blk)>=0;if(esHoy(t.act)||esNuevo(t.act,fr))hayNuevo=true;
@@ -374,8 +376,8 @@ function pintarTiles(){
 }
 pintarTiles();
 $("mosaico").addEventListener("click",function(e){var b=e.target.closest(".g-cab");if(!b)return;var g=b.parentNode,k=g.getAttribute("data-g"),ab=b.getAttribute("aria-expanded")!=="true";abiertos[k]=ab;guardarGrupos();b.setAttribute("aria-expanded",String(ab));g.classList.toggle("abierto",ab);g.querySelector(".g-cuerpo").hidden=!ab;actualizarTodo();});
-function actualizarTodo(){var todos=GRUPOS.every(function(g){return abiertos[g[0]];});$("plegarTodo").textContent=todos?"Plegar todo":"Desplegar todo";}
-$("plegarTodo").addEventListener("click",function(){var todos=GRUPOS.every(function(g){return abiertos[g[0]];});GRUPOS.forEach(function(g){abiertos[g[0]]=!todos;});guardarGrupos();pintarTiles();actualizarTodo();});
+function actualizarTodo(){$("plegarTodo").textContent=vistaTodo?"Agrupar por temas":"Desplegar todo";}
+$("plegarTodo").addEventListener("click",function(){vistaTodo=!vistaTodo;try{localStorage.setItem("celv-todo",vistaTodo?"1":"0");}catch(e){}pintarTiles();actualizarTodo();});
 actualizarTodo();
 document.querySelectorAll(".modo button").forEach(function(b){b.addEventListener("click",function(){modo=b.getAttribute("data-modo");document.querySelectorAll(".modo button").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false");});pintarTiles();});});
 function verGlobo(tileEl){var t=tiles[+tileEl.getAttribute("data-i")];globo.innerHTML=explica(t,t[modo],modo)+'<br><span style="opacity:.8">'+proximo(t.blk)+'</span>';var r=tileEl.getBoundingClientRect();globo.classList.add("on");var gw=globo.offsetWidth,gh=globo.offsetHeight;var x=Math.max(8,Math.min(window.innerWidth-gw-8,r.left+r.width/2-gw/2));var y=r.top-gh-10;if(y<8)y=r.bottom+10;globo.style.left=x+"px";globo.style.top=y+"px";}
@@ -841,7 +843,7 @@ function porId(id){return tiles.filter(function(t){return t.id===id;})[0];}
 /* El tiempo de los precios: sol si baja, tormenta si sube mucho (para el bolsillo) */
 function tiempo(p,bueno){var x=bueno?-p:p;return x<=-2?["sol","Despejado"]:x<-0.5?["solnube","Claros"]:x<=0.5?["nube","Nublado"]:x<=5?["lluvia","Chubascos"]:["tormenta","Tormenta"];}
 function pintarGaceta(){
-  $("gNum").textContent="Año I · Número "+(dias("2026-11-01",hoyISO)+1);
+  $("gNum").textContent="Año I · Número "+(Math.max(0,dias("2026-11-09",hoyISO))+1);
   $("gFecha").textContent=largo(hoyISO).replace(/^./,function(c){return c.toUpperCase();});
   var efe=efemHoy[0],cur=P.curiosidades.length?P.curiosidades[diaN%P.curiosidades.length]:null;
   $("gFranja").innerHTML='<div><b class="k">'+(fiestaHoy.length?"Hoy es fiesta":"Santoral")+'</b>'+(fiestaHoy.length?cap(fiestaHoy[0].nombre)+" en "+fiestaHoy[0].donde+". ":"")+(santoHoy?"Hoy es "+santoHoy+".":"Felicidades a quien celebre hoy su santo.")+'</div><div><b class="k">El refrán del día</b>'+(refranHoy?"«"+refranHoy[0]+"»":"")+'</div><div><b class="k">'+(efe?"Tal día como hoy, "+efe[0]:"De la hemeroteca")+'</b>'+(efe?efe[1]:(cur?cur[0]:""))+'</div>';
