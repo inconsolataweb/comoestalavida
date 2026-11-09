@@ -10,8 +10,7 @@ Actualiza data.js de «Cómo está la vida» con las fuentes oficiales que tiene
   Euríbor y tipo del BCE .. BCE, data-api.ecb.europa.eu
   Depósitos e hipotecas ... BCE (estadísticas MIR de España)
   Servicios e IPC por productos (agua, basuras, telefonía, transporte, seguros, carne, pescado…)
-                            INE, API Tempus3 (los códigos de serie se buscan solos la primera vez
-                            y se guardan en ine_series.json)
+                            INE, API Tempus3 (IPC base 2025, códigos en SERIES_INE)
 
 Lo que solo sale en notas de prensa (recibo y cesta de FACUA, idealista, butano, TUR del gas,
 paro, salario mínimo, sello) lo actualiza la tarea diaria de Claude o se cambia a mano.
@@ -29,16 +28,24 @@ HOY = dt.datetime.now(MADRID).date()
 # Código de la serie del INE «Índice general nacional. Variación anual» (IPC base 2021).
 # Compruébalo una vez en https://servicios.ine.es/wstempus/js/ES/SERIES_OPERACION/IPC?page=1
 # buscando "Total Nacional. Índice general. Variación anual." y pon aquí su COD.
-INE_SERIE_IPC = "IPC251856"
-INE_SERIE_SUBYACENTE = ""   # opcional: "Índice general sin alimentos no elaborados ni productos energéticos. Variación anual."
+INE_SERIE_IPC = "IPC290750"   # IPC base 2025 (ECOICOP ver.2), tabla 76125
+INE_SERIE_SUBYACENTE = "IPC292510"   # opcional: "Índice general sin alimentos no elaborados ni productos energéticos. Variación anual."
 
 MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
 
 
-def get(url, timeout=60):
-    req = urllib.request.Request(url, headers={"User-Agent": "comoestalavida/1.0", "Accept": "application/json"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return r.read()
+def get(url, timeout=60, intentos=4):
+    """Descarga con reintentos: el BCE y el INE a veces dan 504 al primer intento."""
+    import time
+    for i in range(intentos):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "comoestalavida/1.0", "Accept": "application/json, text/csv"})
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return r.read()
+        except Exception:
+            if i == intentos - 1:
+                raise
+            time.sleep(8 * (i + 1))
 
 
 def cargar():
@@ -129,7 +136,7 @@ def actualizar_carburantes(d):
 
 def serie_ine(cod, n=8):
     j = json.loads(get(f"https://servicios.ine.es/wstempus/js/ES/DATOS_SERIE/{cod}?nult={n}"))
-    return [(int(x["Anyo"]), int(x["FK_Periodo"]), round(float(x["Valor"]), 1)) for x in j["Data"]]
+    return [(int(x["Anyo"]), int(x["FK_Periodo"]), round(float(x["Valor"]), 1)) for x in j["Data"] if x.get("Valor") is not None]
 
 
 def actualizar_ipc(d):
@@ -175,7 +182,7 @@ BCE_CONSUMO_ES = "MIR/M.ES.B.A2B.A.R.A.2250.EUR.N"      # crédito al consumo, h
 
 
 def bce(clave, n=14):
-    txt = get(f"https://data-api.ecb.europa.eu/service/data/{clave}?lastNObservations={n}&format=csvdata").decode()
+    txt = get(f"https://data-api.ecb.europa.eu/service/data/{clave}?lastNObservations={n}&format=csvdata", timeout=180).decode()
     filas = list(csv.DictReader(io.StringIO(txt)))
     return [(f["TIME_PERIOD"], round(float(f["OBS_VALUE"]), 3)) for f in filas if f.get("OBS_VALUE")]
 
@@ -223,78 +230,34 @@ def actualizar_depositos(d):
 
 
 # ---------------------------------------------------------------------------------------------
-# INE: busca las series por su nombre la primera vez y guarda los códigos en ine_series.json
+# INE: IPC por subclases y rúbricas (agua, basuras, transporte, seguros, alimentos…)
 # ---------------------------------------------------------------------------------------------
-CACHE_INE = "ine_series.json"
-# clave: (operación, [textos que debe contener el nombre], [alternativas])
+# Códigos de las series «Variación anual» del IPC base 2025 (ECOICOP ver.2), comprobados en noviembre de 2026.
+# Tablas: 76125 general, 76130 grupos especiales, 76129 rúbricas, 76128 subclases.
+# La «Variación mensual» de cada serie es el código + 2 (p. ej. IPC292242 anual -> IPC292244 mensual).
+# Si el INE cambia de base, busca los nuevos en https://servicios.ine.es/wstempus/js/ES/DATOS_TABLA/76128?nult=1
 SERIES_INE = {
-    "ipc_general":    ("IPC", ["Total Nacional", "Índice general", "Variación anual"]),
-    "ipc_subyacente": ("IPC", ["Total Nacional", "sin alimentos no elaborados ni productos energéticos", "Variación anual"]),
-    "agua":           ("IPC", ["Total Nacional", "Suministro de agua", "Variación anual"]),
-    "basuras":        ("IPC", ["Total Nacional", "Recogida de basuras", "Variación anual"]),
-    "alquiler_ipc":   ("IPC", ["Total Nacional", "Alquiler", "vivienda", "Variación anual"]),
-    "telefonia":      ("IPC", ["Total Nacional", "telefonía", "Variación anual"]),
-    "internet":       ("IPC", ["Total Nacional", "Servicios de información y comunicación", "Variación anual"]),
-    "bus_metro":      ("IPC", ["Total Nacional", "Transporte combinado de pasajeros", "Variación anual"]),
-    "tren":           ("IPC", ["Total Nacional", "Transporte de pasajeros por ferrocarril", "Variación anual"]),
-    "seguro_coche":   ("IPC", ["Total Nacional", "Seguros relacionados con el transporte", "Variación anual"]),
-    "seguro_hogar":   ("IPC", ["Total Nacional", "Seguros relacionados con la vivienda", "Variación anual"]),
-    "seguro_salud":   ("IPC", ["Total Nacional", "Seguros relacionados con la salud", "Variación anual"]),
-    "electricidad":   ("IPC", ["Total Nacional", "Electricidad", "Variación anual"]),
-    # Alimentos que FACUA no sigue (variación anual y mensual)
-    "filete":   ("IPC", ["Total Nacional", "Carne de vacuno", "Variación anual"]),
-    "chuleta":  ("IPC", ["Total Nacional", "Carne de ovino", "Variación anual"]),
-    "jamon":    ("IPC", ["Total Nacional", "Carne de porcino", "Variación anual"]),
-    "muslo":    ("IPC", ["Total Nacional", "Carne de ave", "Variación anual"]),
-    "pescado":  ("IPC", ["Total Nacional", "Pescado fresco y congelado", "Variación anual"]),
-    "gamba":    ("IPC", ["Total Nacional", "Crustáceos", "Variación anual"]),
-    "huevos":   ("IPC", ["Total Nacional", "Huevos", "Variación anual"]),
-    "leche":    ("IPC", ["Total Nacional", "Leche", "Variación anual"]),
-    "queso":    ("IPC", ["Total Nacional", "Productos lácteos", "Variación anual"]),
-    "manzana":  ("IPC", ["Total Nacional", "Frutas frescas", "Variación anual"]),
-    "lechuga":  ("IPC", ["Total Nacional", "Legumbres y hortalizas frescas", "Variación anual"]),
-    "pan":      ("IPC", ["Total Nacional", "Pan", "Variación anual"]),
-    "cafe":     ("IPC", ["Total Nacional", "Café, cacao e infusiones", "Variación anual"]),
-    "azucar":   ("IPC", ["Total Nacional", "Azúcar", "Variación anual"]),
+    "agua": "IPC291826", "basuras": "IPC291830", "alquiler_ipc": "IPC291806", "comunidad": "IPC291838",
+    "telefonia": "IPC292046", "bus_metro": "IPC291546", "tren": "IPC291990",
+    "seguro_coche": "IPC292166", "seguro_salud": "IPC292162", "electricidad": "IPC291482",
+    # alimentos que FACUA no sigue
+    "filete": "IPC292222", "chuleta": "IPC292226", "jamon": "IPC292230", "muslo": "IPC292234",
+    "pescado": "IPC292362", "gamba": "IPC292366", "huevos": "IPC292242", "leche": "IPC292246",
+    "queso": "IPC291434", "manzana": "IPC292258", "lechuga": "IPC292262", "pan": "IPC292218",
+    "cafe": "IPC292274", "azucar": "IPC292270",
 }
 NOMBRES_SERVICIOS = [("agua", "agua", "Agua del grifo"), ("basuras", "basura", "Recogida de basuras"),
-                     ("telefonia", "telefono", "Teléfono e internet"), ("bus_metro", "metro", "Autobús y metro"),
-                     ("tren", "tren", "Tren"), ("seguro_hogar", "casa", "Seguro del hogar"),
+                     ("comunidad", "casa", "Gastos de comunidad"), ("telefonia", "telefono", "Teléfono e internet"),
+                     ("bus_metro", "metro", "Autobús y metro"), ("tren", "tren", "Tren"),
                      ("seguro_salud", "pension", "Seguro de salud"), ("alquiler_ipc", "llave", "Alquileres (IPC)")]
 
 
-def buscar_series(pendientes):
-    """Recorre las series de la operación del INE página a página hasta encontrar las pendientes."""
-    encontradas, pagina = {}, 1
-    while pendientes and pagina <= 400:
-        lote = json.loads(get(f"https://servicios.ine.es/wstempus/js/ES/SERIES_OPERACION/IPC?page={pagina}"))
-        if not lote:
-            break
-        for s in lote:
-            nombre = s.get("Nombre", "")
-            for clave in list(pendientes):
-                textos = SERIES_INE[clave][1]
-                if all(t.lower() in nombre.lower() for t in textos):
-                    # prioriza la serie más corta (la general, no un desglose)
-                    if clave not in encontradas or len(nombre) < len(encontradas[clave][1]):
-                        encontradas[clave] = (s["COD"], nombre)
-        pagina += 1
-    return {k: v[0] for k, v in encontradas.items()}, {k: v[1] for k, v in encontradas.items()}
+def mensual(cod):
+    return "IPC" + str(int(cod[3:]) + 2)
 
 
 def codigos_ine():
-    cache = json.load(open(CACHE_INE, encoding="utf-8")) if os.path.exists(CACHE_INE) else {}
-    pendientes = [k for k in SERIES_INE if k not in cache]
-    if pendientes:
-        cods, nombres = buscar_series(pendientes)
-        for k in cods:
-            cache[k] = cods[k]
-            print(f"    INE {k}: {cods[k]}  ({nombres[k]})")
-        for k in pendientes:
-            if k not in cods:
-                print(f"    INE {k}: no encontrada (revisa el texto en SERIES_INE)", file=sys.stderr)
-        json.dump(cache, open(CACHE_INE, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    return cache
+    return dict(SERIES_INE)
 
 
 def ultimos_ine(cod, n=13):
@@ -304,10 +267,6 @@ def ultimos_ine(cod, n=13):
 
 def actualizar_ine(d):
     cods = codigos_ine()
-    # IPC general y subyacente (sustituye a los códigos fijos de arriba)
-    global INE_SERIE_IPC, INE_SERIE_SUBYACENTE
-    INE_SERIE_IPC = cods.get("ipc_general", INE_SERIE_IPC)
-    INE_SERIE_SUBYACENTE = cods.get("ipc_subyacente", INE_SERIE_SUBYACENTE)
     # Servicios de la casa
     items, fecha = [], None
     for clave, icono, nombre in NOMBRES_SERVICIOS:
@@ -335,8 +294,11 @@ def actualizar_ine(d):
     for it in R["items"]:
         if it[0] in cods:
             datos = ultimos_ine(cods[it[0]], 2)
-            if datos and datos[-1][2] != it[2]:
+            mens = ultimos_ine(mensual(cods[it[0]]), 2)
+            if datos and (datos[-1][2] != it[2] or (mens and mens[-1][2] != it[3])):
                 it[2] = datos[-1][2]
+                if mens:
+                    it[3] = mens[-1][2]
                 cambio = True
                 R["fecha"] = f"{datos[-1][0]}-{datos[-1][1]:02d}-28"
                 R["mes"] = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre",
