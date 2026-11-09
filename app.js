@@ -65,6 +65,7 @@ function proximo(blk){var sig=mesNombre(1),este=mesNombre(0);
     paro:"A primeros de "+sig+" el Ministerio de Trabajo publica el paro de "+este+".",
     sello:"Una vez al año, en enero.",
     seguro_coche:"A mediados de mes, con el IPC definitivo del INE.",
+    servicios:"A mediados de "+sig+", con el IPC definitivo del INE.",
     depositos:"A principios de mes el BCE publica los tipos de hace dos meses.",
     salario_medio:"Cada trimestre, con la Encuesta de Coste Laboral del INE (la próxima, a mediados de diciembre)."};
   return "Próximo dato: "+(m[blk]||"pronto.");}
@@ -304,6 +305,29 @@ var tiles=[
   info:"Lo que cuesta enviar una carta ordinaria nacional de hasta 20 gramos. En 2015 costaba 0,42 €: desde entonces ha subido más del doble.",
   graf:function(b){lineas(b,D.sello.serie,[{k:1,color:css("--anil"),name:"Sello"}],{aria:"Sello",h:240,dec:2,lastFmt:function(v){return eur(v);},tipFmt:function(v){return eur(v);}});},fuente:D.sello.fuente}
 ];
+/* Fichas de los recibos de casa y transporte, con el IPC del INE (bloque «servicios» que rellena la Action) */
+var SERV={agua:["agua","Agua del grifo","vivienda",30,"al mes","El precio del suministro de agua a través de la red municipal, según el IPC del INE. Incluye la cuota fija y el consumo."],
+  basura:["basuras","Recogida de basuras","vivienda",110,"al año","La tasa municipal de recogida de basuras. Muchos ayuntamientos la han subido para cumplir la nueva ley de residuos."],
+  casa:["comunidad","Gastos de comunidad","vivienda",70,"al mes","Lo que se paga a la comunidad de vecinos: portería, limpieza, ascensor, luz de la escalera y seguros del edificio."],
+  telefono:["telefono","Teléfono e internet","vivienda",55,"al mes","Los paquetes de fibra y móvil, según el IPC del INE (servicios de telecomunicaciones agrupados)."],
+  metro:["metro","Autobús y metro","gasolinera",40,"al mes","Billetes y abonos del transporte público que combina autobús, metro y cercanías en las ciudades."],
+  tren:["tren","Billete de tren","gasolinera",60,"por viaje","El precio medio del transporte de pasajeros por tren, de cercanías a alta velocidad."],
+  pension:["seguro_salud","Seguro de salud","cesta",60,"al mes","La prima media de los seguros médicos privados, según el IPC del INE."]};
+var SV=D.servicios&&D.servicios.items?D.servicios.items:[];
+var mesN=function(iso){return ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"][+iso.slice(5,7)-1];};
+SV.forEach(function(r){var s=SERV[r[0]];if(!s)return;var se=r[3]||[],prev=se.length>1?se[se.length-2]:null;
+  var mesAnt=prev?prev[0].split(" ")[0]:"";mesAnt={ene:"Enero",feb:"Febrero",mar:"Marzo",abr:"Abril",may:"Mayo",jun:"Junio",jul:"Julio",ago:"Agosto",sep:"Septiembre",oct:"Octubre",nov:"Noviembre",dic:"Diciembre"}[mesAnt]||"Mes anterior";
+  var t={id:s[0],blk:"servicios",sec:s[2],ico:r[0],t:s[1],f:D.servicios.fecha,act:D.servicios.actualizado,v:fmt(r[2],1),u:"% en un año",
+    ant:prev?{k:mesAnt,ref:fmt(prev[1],1)+" %",p:r[2]-prev[1],pt:true}:{k:"Mes anterior",ref:"",p:null},
+    anio:{k:"IPC general",ref:fmt(ipc1,1)+" %",p:r[2]-ipc1,pt:true},
+    sp:se.length>2?se.map(function(d){return d[1];}):null,n:"Subida del precio en un año, IPC del INE",
+    info:s[5]+" Es la subida en un año del precio medio en España; aquí la comparación «de un año» se hace frente a la inflación general.",
+    base:s[3],per:s[4],
+    graf:function(b){lineas(b,se,[{k:1,color:css("--anil"),name:s[1]}],{aria:s[1]+", variación anual",h:240,dec:1,zero:true,lastFmt:function(v){return fmt(v,1)+" %";},tipFmt:function(v){return fmt(v,1)+" %";}});},
+    fuente:D.servicios.fuente||{nombre:"INE",url:"https://www.ine.es/"}};
+  var tras={vivienda:"vivienda",gasolinera:"seguro",cesta:"aceite"}[s[2]],i=tiles.findIndex(function(x){return x.id===tras;});
+  var j=i;while(j+1<tiles.length&&tiles[j+1].blk==="servicios"&&tiles[j+1].sec===s[2])j++;
+  tiles.splice(j+1,0,t);});
 if(D.depositos&&D.depositos.zona==="España")tiles.forEach(function(t){if(t.id==="hipotecas"||t.id==="depositos"){t.n=t.n.replace("zona del euro","en España");t.info=t.info.replace("en la zona del euro","en España").replace("zona del euro","España");}});
 tiles.forEach(function(t){
   if(t.id==="depositos"||t.id==="hipotecas")t.ley=[[css("--baja"),"Lo que te paga el banco"],[css("--sube"),"Lo que te cobra el banco"]];
@@ -324,9 +348,8 @@ function explica(t,c,m){
   return "Compara "+t.t.toLowerCase()+" ("+"<b>"+t.v+" "+t.u+"</b>"+") "+que+" ("+c.k+(c.ref?": <b>"+c.ref+"</b>":"")+"). Diferencia: <b>"+(c.p>0?"+":"−")+fmt(Math.abs(c.p),1)+" %</b>.";
 }
 /* Las tarjetas van agrupadas por temas: cada grupo se pliega y enseña un resumen de una línea */
-var GRUPOS=[["luz","luz","La luz",["luz","recibo","horasluz"]],["coche","surtidor","El coche",["gasolina","diesel","brent","seguro"]],["calor","radiador","La calefacción",["gastur","butano","gasoleoc"]],
-  ["casa","casa","La casa y el banco",["alquiler","vivienda","euribor","cuota","bce","hipotecas","depositos"]],["sueldos","monedero","Sueldos y precios",["ipc","smi","pension","salario","paro"]],["compra","cesta","La compra y otros",["aceite","sello"]]];
-var CORTO={luz:"Luz hoy",recibo:"Recibo",horasluz:"Horas de luz",gasolina:"Gasolina",diesel:"Diésel",brent:"Brent",seguro:"Seguro",gastur:"Gas",butano:"Butano",gasoleoc:"Gasóleo C",alquiler:"Alquiler",vivienda:"Vivienda",euribor:"Euríbor",cuota:"Cuota",bce:"BCE",hipotecas:"Hipotecas",depositos:"Depósitos",ipc:"IPC",smi:"Salario mín.",pension:"Pensión",salario:"Salario medio",paro:"Paro",aceite:"Aceite",sello:"Sello"};
+var GRUPOS=[["luz","luz","La luz",["luz","recibo","horasluz"]],["coche","surtidor","Coche y transporte",["gasolina","diesel","brent","seguro","metro","tren"]],["calor","radiador","La calefacción",["gastur","butano","gasoleoc"]],["casa","casa","La casa",["alquiler","vivienda","agua","basuras","comunidad","telefono"]],["banco","banco","El banco",["euribor","cuota","bce","hipotecas","depositos"]],["sueldos","monedero","Sueldos y precios",["ipc","smi","pension","salario","paro"]],["compra","cesta","La compra y otros",["aceite","seguro_salud","sello"]]];
+var CORTO={agua:"Agua",basuras:"Basuras",comunidad:"Comunidad",telefono:"Teléfono",metro:"Bus y metro",tren:"Tren",seguro_salud:"Seguro médico",luz:"Luz hoy",recibo:"Recibo",horasluz:"Horas de luz",gasolina:"Gasolina",diesel:"Diésel",brent:"Brent",seguro:"Seguro",gastur:"Gas",butano:"Butano",gasoleoc:"Gasóleo C",alquiler:"Alquiler",vivienda:"Vivienda",euribor:"Euríbor",cuota:"Cuota",bce:"BCE",hipotecas:"Hipotecas",depositos:"Depósitos",ipc:"IPC",smi:"Salario mín.",pension:"Pensión",salario:"Salario medio",paro:"Paro",aceite:"Aceite",sello:"Sello"};
 var abiertos={};try{abiertos=JSON.parse(localStorage.getItem("celv-grupos")||"{}");}catch(e){}
 if(!Object.keys(abiertos).length)abiertos={luz:true};
 function guardarGrupos(){try{localStorage.setItem("celv-grupos",JSON.stringify(abiertos));}catch(e){}}
@@ -488,7 +511,7 @@ var EXPL={
   salario:function(t,c,m){var d0=D.salario_medio.valor-D.salario_medio.valor/(1+D.salario_medio.interanual/100);return "Son "+B(eur(d0,0))+" más al mes que hace un año. Sube un "+fmt(D.salario_medio.interanual,1)+" % y los precios un "+fmt(ipc1,1)+" %: "+(D.salario_medio.interanual>=ipc1?"empate técnico.":"pierde.");},
   sello:function(t,c,m){var d=(D.sello.valor-D.sello.anterior)*100;return "Cada carta, "+B(fmt(d,0)+" céntimos")+" más que el año pasado. En 2015 costaba 0,42 €: más del doble.";}
 };
-function expl(t,c,m){var f=EXPL[t.id];return f?f(t,c,m):comDe(t.id,dirDe(c.p,c.pt?0.05:0.5),0);}
+function expl(t,c,m){if(t.blk==="servicios"){var vv=parseFloat(t.v.replace(",","."));if(m==="anio")return Math.abs(c.p)<0.3?"Sube más o menos como todo lo demás, "+G.hija+".":c.p>0?"Sube "+B(fmt(Math.abs(c.p),1)+" puntos")+" más que la inflación. Esto no es la crisis, es la cara de algunos.":"Sube "+B(fmt(Math.abs(c.p),1)+" puntos")+" menos que la inflación. Algo es algo.";var d=t.base*vv/(100+vv);return vv<0?"Ha bajado un "+B(fmt(-vv,1)+" %")+" en un año. Mira tú, una alegría.":"Un recibo de "+eur(t.base,0)+" "+t.per+" lleva "+B(eur(d,2))+" de subida respecto a hace un año.";}var f=EXPL[t.id];return f?f(t,c,m):comDe(t.id,dirDe(c.p,c.pt?0.05:0.5),0);}
 tiles.forEach(function(t){
   [["ant",0],["anio",1]].forEach(function(m){var c=t[m[0]];if(c.p===null||c.p===undefined)return;if(m[1]===1&&t.ant.k===t.anio.k)return;
     var d=dirDe(c.p,c.pt?0.05:0.5),txt=t.t+": "+B(t.v+" "+t.u)+", "+(d==="i"?"igual que "+(FRASE_K[c.k]||c.k.toLowerCase()):cifra(c,t.bueno)+" "+frenteA(c.k))+".";
@@ -941,6 +964,7 @@ function serieDe(t){
     alquiler:[D.alquiler.serie,1,1,"€/m²"],vivienda:[D.vivienda.serie,1,0,"€/m²"],euribor:[E,1,3,"%"],cuota:[E.map(function(d){return [d[0],cuota(150000,d[1]+0.8,20)];}),1,0,"€"],
     bce:[D.bce.serie,1,2,"%"],ipc:[I,1,1,"%"],smi:[smiS.filter(function(d){return +d[0]>=2016;}),1,0,"€"],salario:[D.salario_medio.ees_serie,1,0,"€/año"],
     paro:[D.paro.serie.map(function(d){return [d[0],d[1]/1e6];}),1,2,"M"],sello:[D.sello.serie,1,2,"€"]};
+  if(t.blk==="servicios"){var it=SV.filter(function(r){return SERV[r[0]]&&SERV[r[0]][0]===t.id;})[0];if(it&&it[3])return [it[3],1,1,"%"];}
   return m[t.id]||null;}
 function cardsDe(t){var x=[],c;
   switch(t.id){
@@ -967,6 +991,7 @@ function cardsDe(t){var x=[],c;
     case "paro":x=[["maletin",fmt(D.paro.valor,0),"Parados registrados"],["nomina",D.paro.afiliados_txt,"Afiliados a la Seguridad Social"]];break;
     case "sello":x=[["sello","0,42 €","En 2015"],["sello",eur(D.sello.valor),"Hoy"]];break;
   }
+  if(t.blk==="servicios"){var vv=parseFloat(t.v.replace(",","."));x=[["monedero",eur(t.base,0)+" "+t.per,"Un recibo típico hoy (orientativo)"],["factura",eur(t.base*vv/(100+vv),2),"De ese recibo, lo que ha subido en un año"],["calendario",fmt(ipc1,1)+" %","Inflación general, para comparar"]];if(t.per==="al mes")x.splice(2,0,["hucha",eur(t.base*12*vv/(100+vv),0),"Más al año que hace un año"]);}
   return x;}
 /* Leyenda de los gráficos de las ventanas: qué es cada color */
 function leyendaDe(ley,ser){var it=ley||(ser?ser.map(function(x){return [x.color,x.name];}):[]);return it.map(function(x){return '<span><i style="background:'+x[0]+'"></i>'+x[1]+'</span>';}).join("")+(it.length?'<span class="ley-nota">El punto grande es el último dato</span>':'');}
