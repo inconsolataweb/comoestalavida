@@ -1002,7 +1002,7 @@ function abrirTile(t){
 
 /* ---------- Las facturas de la casa (INE): aparece cuando la actualización automática trae los datos ---------- */
 (function(){var S=D.servicios;if(!S||!S.items||!S.items.length)return;$("facturasBox").hidden=false;
-  $("facturasSub").textContent="Lo que han subido en un año el agua, la basura, el teléfono, el transporte público y los seguros, según el IPC del INE ("+corto(S.fecha)+").";
+  $("facturasSub").textContent="Lo que han subido en un año el agua, la basura, la comunidad, el teléfono, el transporte público y el seguro médico, según el IPC del INE (dato de "+["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"][+S.fecha.slice(5,7)-1]+" de "+S.fecha.slice(0,4)+").";
   var mx=Math.max.apply(null,S.items.map(function(r){return Math.abs(r[2]);}))||1;
   $("facturas").innerHTML=S.items.slice().sort(function(a,b){return b[2]-a[2];}).map(function(r){return filaC([r[0],r[1],r[2]],mx);}).join("")+'<p class="sub" style="margin:8px 0 0">Variación anual de cada precio. La inflación general es del '+fmt(ipc1,1)+' %: lo que está por encima sube más que la media.</p>';})();
 
