@@ -327,6 +327,23 @@ var CORTO={luz:"Luz hoy",recibo:"Recibo",horasluz:"Horas de luz",gasolina:"Gasol
 var abiertos={};try{abiertos=JSON.parse(localStorage.getItem("celv-grupos")||"{}");}catch(e){}
 if(!Object.keys(abiertos).length)abiertos={luz:true};
 function guardarGrupos(){try{localStorage.setItem("celv-grupos",JSON.stringify(abiertos));}catch(e){}}
+function marquesinas(raiz){
+  (raiz||document).querySelectorAll(".marq").forEach(function(m){
+    if(!m.hasAttribute("data-orig"))m.setAttribute("data-orig",m.innerHTML);
+    var orig=m.getAttribute("data-orig");
+    m.classList.remove("mueve");
+    m.innerHTML='<span class="marq-pista"><span class="marq-set">'+orig+'</span></span>';
+    var set=m.firstChild.firstChild;
+    if(!m.clientWidth)return;
+    if(set.scrollWidth>m.clientWidth+2){
+      m.firstChild.innerHTML+='<span class="marq-set" aria-hidden="true">'+orig+'</span>';
+      m.firstChild.lastChild.querySelectorAll("button").forEach(function(b){b.tabIndex=-1;});
+      m.style.setProperty("--dur",Math.max(10,set.scrollWidth/32)+"s");
+      m.classList.add("mueve");m.classList.remove("quieta");
+    }else m.classList.add("quieta");
+  });
+}
+var _mqT;window.addEventListener("resize",function(){clearTimeout(_mqT);_mqT=setTimeout(function(){marquesinas();},200);});
 function pintarTiles(){
   var nS=0,nB=0,nP=0;
   var html1=tiles.map(function(t,i){
@@ -346,9 +363,10 @@ function pintarTiles(){
     var chips=idx.map(function(i){var t=tiles[i],c=t[modo],col=c.p===null||c.p===undefined?"plano":tono(estado(c.p,c.pt?0.05:0.5),t.bueno);if(col==="sube")gS++;else if(col==="baja")gB++;var fr=FRECUENTES.indexOf(t.blk)>=0;if(esHoy(t.act)||esNuevo(t.act,fr))hayNuevo=true;
       return '<span class="chip-g">'+ico(t.ico)+'<span class="cn">'+CORTO[t.id]+'</span>'+pctTag(c,t.bueno).replace('class="pct','class="pct mini')+'</span>';}).join("");
     var ab=!!abiertos[g[0]];
-    return '<section class="grupo'+(ab?' abierto':'')+'" data-g="'+g[0]+'"><button type="button" class="g-cab" aria-expanded="'+ab+'"><span class="g-ico">'+ico(g[1])+'</span><span class="g-tit"><b>'+g[2]+(hayNuevo?' <i class="g-nuevo" title="Hay datos nuevos">●</i>':'')+'</b><small>'+(gS?gS+(gS===1?' empeora':' empeoran'):'')+(gS&&gB?' · ':'')+(gB?gB+(gB===1?' mejora':' mejoran'):'')+(!gS&&!gB?'Sin cambios':'')+'</small></span><span class="g-chips">'+chips+'</span><span class="g-flecha" aria-hidden="true">▾</span></button>'+
+    return '<section class="grupo'+(ab?' abierto':'')+'" data-g="'+g[0]+'"><button type="button" class="g-cab" aria-expanded="'+ab+'"><span class="g-ico">'+ico(g[1])+'</span><span class="g-tit"><b>'+g[2]+(hayNuevo?' <i class="g-nuevo" title="Hay datos nuevos">●</i>':'')+'</b><small>'+(gS?gS+(gS===1?' empeora':' empeoran'):'')+(gS&&gB?' · ':'')+(gB?gB+(gB===1?' mejora':' mejoran'):'')+(!gS&&!gB?'Sin cambios':'')+'</small></span><span class="g-chips marq">'+chips+'</span><span class="g-flecha" aria-hidden="true"><span class="ft"><span class="fc">Ver fichas</span><span class="fa">Plegar</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></button>'+
       '<div class="g-cuerpo grid"'+(ab?'':' hidden')+'>'+idx.map(function(i){return html1[i];}).join("")+'</div></section>';}).join("");
   $("veredicto").innerHTML=(nS?'<span class="b-mal" style="flex-grow:'+nS+'">▲ '+nS+(nS===1?' empeora':' empeoran')+'</span>':'')+(nP?'<span class="b-igual" style="flex-grow:'+nP+'" title="Sin cambio o sin dato">= '+nP+'</span>':'')+(nB?'<span class="b-bien" style="flex-grow:'+nB+'">▼ '+nB+(nB===1?' mejora':' mejoran')+'</span>':'');
+  marquesinas($("mosaico"));
   $("balanceSub").textContent=(modo==="anio"?"frente a hace un año":"frente al dato anterior")+" · "+tiles.length+" indicadores";
 }
 pintarTiles();
@@ -1021,7 +1039,7 @@ var TEMAS=[
    var cap=x.filter(function(v){return v>=10000;})[0],an=x.filter(function(v){return v>=5&&v<=40;})[0]||25;
    if(cap){var q=cuota(cap,eu1+0.8,an),q0=cuota(cap,eu0+0.8,an);return "Para "+eur(cap,0)+" a "+fmt(an,0)+" años con euríbor + 0,8: "+B(eur(q,0)+" al mes")+". Con el euríbor de hace un año eran "+eur(q0,0)+": "+sube("+"+eur(q-q0,0))+" al mes, "+eur((q-q0)*12,0)+" al año.";}
    return "El euríbor está en el "+B(fmt(eu1,3)+" %")+" (hace un año, "+fmt(eu0,2)+" %). Una hipoteca de 150.000 € a 20 años paga unos "+B(eur(c1,0))+" al mes, "+sube("+"+eur(c1-c0,0))+" más que hace un año. El BCE tiene los tipos en el "+fmt(D.bce.valor,2)+" % y se reúne el "+diaMes(D.bce.proxima)+". Dime la cantidad y los años y te hago la cuenta."+ir("vivienda");}},
- {id:"ahorro",k:["ahorr","plazo fijo","depositos","deposito a","intereses","hucha","cuenta corriente"],f:function(n,x){var cap=x.filter(function(v){return v>=100;})[0]||10000,g=cap*D.depositos.valor/100,pe=cap*ipc1/100;return "Un depósito a un año paga de media un "+B(fmt(D.depositos.valor,2)+" %")+" (zona del euro). "+eur(cap,0)+" te darían unos "+B(eur(g,0))+" al año, pero con los precios subiendo un "+fmt(ipc1,1)+" % pierden "+eur(pe-g,0)+" de valor. La cuenta corriente paga un "+fmt(D.depositos.vista,2)+" %.";}},
+ {id:"ahorro",k:["ahorr","plazo fijo","deposito","me dan por","intereses","hucha","cuenta corriente"],f:function(n,x){var cap=x.filter(function(v){return v>=100;})[0]||10000,g=cap*D.depositos.valor/100,pe=cap*ipc1/100;return "Un depósito a un año paga de media un "+B(fmt(D.depositos.valor,2)+" %")+" (zona del euro). "+eur(cap,0)+" te darían unos "+B(eur(g,0))+" al año, pero con los precios subiendo un "+fmt(ipc1,1)+" % pierden "+eur(pe-g,0)+" de valor. La cuenta corriente paga un "+fmt(D.depositos.vista,2)+" %.";}},
  {id:"alquiler",k:["alquil","piso","vivienda","casa","metros","m2","comprar casa"],f:function(n,x){var m=x.filter(function(v){return v>=20&&v<=400;})[0]||70;
    if(tiene(n,["compr","venta","precio de la vivienda"]))return "Comprar "+fmt(m,0)+" m² de vivienda usada cuesta unos "+B(eur(D.vivienda.valor*m,0))+" ("+fmt(D.vivienda.valor,0)+" € el metro, "+signo(D.vivienda.interanual,1)+" en un año). Son "+fmt(D.vivienda.valor*m/D.salario_medio.ees_anual,1)+" años de salario medio.";
    return "Alquilar "+fmt(m,0)+" m² sale por unos "+B(eur(D.alquiler.valor*m,0))+" al mes ("+fmt(D.alquiler.valor,1)+" € el metro, "+signo(D.alquiler.interanual,1)+" en un año). Con el salario mínimo se iría el "+fmt(D.alquiler.valor*m/sueldoMes*100,0)+" % del sueldo."+ir("vivienda");}},
@@ -1087,13 +1105,13 @@ function responder(q){var n=" "+norm(q)+" ",x=numeros(q);
   for(var g2=0;g2<GLOS.length;g2++){if(tiene(n,GLOS[g2][0]))return GLOS[g2][1];}
   if(ctx.tema&&(x.length||/ (y |entonces |pues |si )/.test(n))){var tm=TEMAS.filter(function(t){return t.k[0]===ctx.tema;})[0];if(tm){var n2=n+(tm.id==="lavadora"&&x.length?" a las ":"")+" "+ctx.tema+" ";return tm.f(n2,x);}}
   return azar(["Uy, de eso no sé nada, "+G.hija+".","Eso no lo tengo apuntado en la libreta.","Ay, "+G.hija+", que yo de eso no entiendo."])+" Pregúntame por la luz, la gasolina, el gas, la hipoteca, la compra, un alimento, los sueldos, las pensiones o lo que costaba algo antes. O pídeme un refrán.";}
-var SUG=["¿A qué hora pongo la lavadora?","¿Cuánto cuesta llenar 40 litros de diésel?","Hipoteca de 200.000 € a 25 años","¿Cuánto ha subido el pollo?","¿Qué cocino con patatas?","¿Cuánto costaba el pan en 1986?","¿Qué es el euríbor?","Cuéntame un refrán"];
-$("chatSug").innerHTML=SUG.map(function(x){return '<button type="button">'+x+'</button>';}).join("");
+var SUG=["¿A qué hora pongo la lavadora?","¿Cuánto cuesta llenar 40 litros de diésel?","Hipoteca de 200.000 € a 25 años","¿Cuánto ha subido el pollo?","¿Qué cocino con patatas?","¿Cuánto costaba el pan en 1986?","¿Qué es el euríbor?","Cuéntame un refrán","¿Cuánto cobra un pensionista?","¿Cómo va el paro?","¿Está cara la bombona de butano?","¿Cuánto es 5.000 pesetas?","¿Qué es el IPC?","¿Cuánto me dan por 10.000 € en un depósito?"];
+$("chatSug").innerHTML=SUG.map(function(x){return '<button type="button">'+x+'</button>';}).join("");$("chatSug").removeAttribute("data-orig");
 function preguntar(q){if(!q.trim())return;decir(q.replace(/</g,"&lt;"),"u");setTimeout(function(){decir(responder(q),"r");},380);}
 $("chatSug").addEventListener("click",function(e){var b=e.target.closest("button");if(b)preguntar(b.textContent);});
 $("chatForm").addEventListener("submit",function(e){e.preventDefault();var i=$("chatIn");preguntar(i.value);i.value="";});
 var chatBtn=document.querySelector(".chat-btn");
-function abrirChat(){chat.hidden=false;chatBtn.hidden=true;if(!chatLog.children.length)decir("¡Hola, "+G.hija+"! Soy Remedios. Pregúntame lo que quieras de los precios de hoy, que me lo sé todo de memoria.","r");$("chatIn").focus();}
+function abrirChat(){chat.hidden=false;chatBtn.hidden=true;marquesinas(chat);if(!chatLog.children.length)decir("¡Hola, "+G.hija+"! Soy Remedios. Pregúntame lo que quieras de los precios de hoy, que me lo sé todo de memoria.","r");$("chatIn").focus();}
 document.addEventListener("click",function(e){if(e.target.closest("[data-chat]"))abrirChat();});
 $("chatX").addEventListener("click",function(){chat.hidden=true;chatBtn.hidden=false;chatBtn.focus();});
 

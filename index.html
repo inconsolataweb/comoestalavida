@@ -109,7 +109,11 @@ nav.secc a.con-nuevo::after{content:"★";background:var(--nuevo);color:var(--nu
 .b-barra .b-mal{background:#B3262F} .b-barra .b-bien{background:#2F7A45} .b-barra .b-igual{background:#9AA1B0}
 .hoy-card .btn-grano.grande{margin-top:0;justify-content:flex-start;width:100%}
 /* Cabecera del mosaico */
-.mos-cab{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:10px}
+.mos-cab{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.mos-cab>div:first-child{min-width:0;flex:1 1 380px}
+.mos-cab .modo-wrap{margin-left:auto;flex-wrap:nowrap;justify-content:flex-end}
+@media (min-width:861px){.mos-cab{flex-wrap:nowrap}}
+@media (max-width:860px){.mos-cab .modo-wrap{margin-left:0;width:100%;flex-wrap:wrap;gap:4px}.mos-cab .modo-wrap .lbl{width:100%;font-size:18px}.mos-cab .modo{display:flex;width:100%}.mos-cab .modo button{flex:1;white-space:nowrap;padding:8px 6px;font-size:13.5px;justify-content:center}}
 .mos-cab h2{font-size:clamp(26px,3.4vw,38px);font-weight:800;letter-spacing:-.02em}
 .mos-cab .sub-m{margin:2px 0 0;color:var(--tinta-2)}
 .leyenda-m{list-style:none;display:flex;flex-wrap:wrap;gap:8px 18px;padding:10px 14px;margin:0 0 16px;background:var(--plano-bg);border-radius:14px;font-size:13.5px;color:var(--tinta-2)}
@@ -238,7 +242,7 @@ nav.secc a.con-nuevo::after{content:"★";background:var(--nuevo);color:var(--nu
 .msg-r,.msg-u{max-width:85%;padding:9px 13px;border-radius:16px;line-height:1.3}
 .msg-r{align-self:flex-start;background:var(--papel);border:1.5px solid var(--papel-borde);border-bottom-left-radius:4px;font-family:var(--font-mano);font-size:19px}
 .msg-u{align-self:flex-end;background:var(--anil);color:#fff;border-bottom-right-radius:4px;font-size:14.5px}
-.chat-sug{display:flex;gap:6px;flex-wrap:wrap;padding:0 12px 8px}
+.chat-sug{margin:0 12px 8px}
 .chat-sug button{border:1px solid var(--raya);background:var(--cal);border-radius:999px;padding:5px 10px;font-size:13px;cursor:pointer;color:var(--tinta)}
 .chat-sug button:hover{border-color:var(--anil);color:var(--anil)}
 .chat-form{display:flex;gap:6px;padding:10px;border-top:1px solid var(--raya)}
@@ -535,14 +539,23 @@ section.bloque{padding:42px 0 8px;scroll-margin-top:10px}
 .mosaico{display:flex;flex-direction:column;gap:10px}
 .grupo{background:var(--tapia);border:1px solid var(--raya);border-radius:var(--r);transition:box-shadow .15s}
 .grupo.abierto{box-shadow:0 8px 22px rgba(0,0,0,.06);background:color-mix(in srgb,var(--plano-bg) 45%,var(--tapia))}
-.g-cab{display:grid;grid-template-columns:48px 190px minmax(0,1fr) 24px;gap:12px;align-items:center;width:100%;border:0;background:transparent;padding:12px 14px;cursor:pointer;text-align:left;color:var(--tinta);border-radius:var(--r)}
+.g-cab{display:grid;grid-template-columns:48px 200px minmax(0,1fr) auto;gap:14px;align-items:center;width:100%;height:76px;border:0;background:transparent;padding:0 14px;cursor:pointer;text-align:left;color:var(--tinta);border-radius:var(--r)}
 .g-cab:hover{background:color-mix(in srgb,var(--anil) 5%,transparent)}
 .g-ico{width:48px;height:48px;border-radius:14px;background:var(--icono-bg);display:grid;place-items:center}
 .g-ico svg{width:34px;height:34px}
 .g-tit b{display:block;font-family:var(--font-display);font-size:19px;font-weight:800;letter-spacing:-.01em}
-.g-tit small{font-size:12.5px;color:var(--tinta-2)}
+.g-tit small{font-size:12.5px;color:var(--tinta-2);white-space:nowrap}
+.g-tit b{white-space:nowrap}
 .g-nuevo{font-style:normal;color:var(--nuevo);font-size:13px;vertical-align:2px}
-.g-chips{display:flex;gap:6px;flex-wrap:wrap;min-width:0}
+.marq{display:block;overflow:hidden;min-width:0;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 28px),transparent)}
+.marq.quieta{-webkit-mask-image:none;mask-image:none}
+.marq-pista{display:inline-flex;white-space:nowrap;will-change:transform}
+.marq-set{display:inline-flex;gap:6px;padding-right:6px;flex-shrink:0}
+.marq.mueve .marq-pista{animation:marq var(--dur,20s) linear infinite}
+.marq.mueve:hover .marq-pista,.marq.mueve:focus-within .marq-pista{animation-play-state:paused}
+@keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.marq.mueve .marq-pista{animation-duration:calc(var(--dur,20s)*3)}}
+.g-chips{padding:4px 0}
 .chip-g{display:inline-flex;align-items:center;gap:5px;background:var(--cal);border:1px solid var(--raya);border-radius:999px;padding:3px 4px 3px 4px;font-size:13px;white-space:nowrap}
 .chip-g svg{width:20px;height:20px}
 .chip-g .cn{color:var(--tinta-2);font-weight:600}
@@ -550,10 +563,15 @@ section.bloque{padding:42px 0 8px;scroll-margin-top:10px}
 .pct.mini.mal.n1{background:#F8D9DB;color:#8E1D25} .pct.mini.mal.n2{background:#D6545C} .pct.mini.mal.n3{background:#A81F29}
 .pct.mini.bien.n1{background:#D4EDDC;color:#1F5A33} .pct.mini.bien.n2{background:#4A9963} .pct.mini.bien.n3{background:#22693A}
 .pct.mini.n0,.pct.mini.plano{background:#8A8F9C}
-.g-flecha{font-size:20px;color:var(--tinta-2);transition:transform .2s;text-align:center}
-.grupo.abierto .g-flecha{transform:rotate(180deg)}
+.g-flecha{display:inline-flex;align-items:center;gap:6px;background:var(--anil);color:#fff;border-radius:999px;padding:7px 12px 7px 14px;font-weight:800;font-size:14px;white-space:nowrap;box-shadow:0 3px 0 color-mix(in srgb,var(--anil) 45%,#000);transition:transform .15s}
+.g-flecha svg{width:18px;height:18px;transition:transform .25s}
+.g-flecha .fa{display:none}
+.grupo.abierto .g-flecha{background:var(--tapia);color:var(--anil);box-shadow:inset 0 0 0 2px var(--anil)}
+.grupo.abierto .g-flecha .fc{display:none}.grupo.abierto .g-flecha .fa{display:inline}
+.grupo.abierto .g-flecha svg{transform:rotate(180deg)}
+.g-cab:hover .g-flecha{transform:translateY(-1px)}
 .link-btn{border:0;background:none;color:var(--anil);font-weight:700;cursor:pointer;padding:0;margin-left:6px;text-decoration:underline;font:inherit;font-weight:700}
-@media (max-width:860px){.g-cab{grid-template-columns:44px minmax(0,1fr) 22px}.g-chips{grid-column:1/-1;grid-row:2}.g-flecha{grid-column:3;grid-row:1}}
+@media (max-width:860px){.g-cab{grid-template-columns:44px minmax(0,1fr) auto;height:104px;row-gap:6px;padding:10px 12px;align-content:center}.g-chips{grid-column:1/-1;grid-row:2}.g-flecha{grid-column:3;grid-row:1;padding:8px 10px}.g-flecha .ft{display:none}}
 .tile h3{min-height:2.4em;display:flex;align-items:flex-end}
 .tile .cmp{min-height:2.6em;align-items:flex-start}
 .tile.n1::before{opacity:.35} .tile.n2::before{opacity:.7} .tile.n3::before{opacity:1}
@@ -1206,7 +1224,7 @@ footer li{break-inside:avoid;margin-bottom:4px}
 <section class="chat" id="chat" hidden aria-label="Pregúntale a Remedios">
   <header class="chat-cab"><svg aria-hidden="true"><use href="#mini"/></svg><div><b>Remedios</b><small>Responde con los datos de hoy</small></div><button type="button" class="chat-x" id="chatX" aria-label="Cerrar">×</button></header>
   <div class="chat-log" id="chatLog" aria-live="polite"></div>
-  <div class="chat-sug" id="chatSug"></div>
+  <div class="chat-sug marq" id="chatSug" aria-label="Preguntas de ejemplo"></div>
   <form class="chat-form" id="chatForm"><input id="chatIn" type="text" autocomplete="off" placeholder="Pregúntale algo a Remedios…" aria-label="Tu pregunta"><button type="submit">Enviar</button></form>
 </section>
 <div id="velo" class="velo" hidden><div class="ventana" role="dialog" aria-modal="true" aria-labelledby="vTitulo"><button type="button" class="cerrar" id="vCerrar" aria-label="Cerrar">×</button><div id="vCuerpo"></div></div></div>
