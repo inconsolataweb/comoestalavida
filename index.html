@@ -530,7 +530,30 @@ section.bloque{padding:42px 0 8px;scroll-margin-top:10px}
 .tile.sube::before{background:#B3262F} .tile.baja::before{background:#2F7A45}
 .tile.sube.n1{background:color-mix(in srgb,#B3262F 4%,var(--tapia))} .tile.sube.n2{background:color-mix(in srgb,#B3262F 8%,var(--tapia))} .tile.sube.n3{background:color-mix(in srgb,#B3262F 13%,var(--tapia))}
 .tile.baja.n1{background:color-mix(in srgb,#2F7A45 4%,var(--tapia))} .tile.baja.n2{background:color-mix(in srgb,#2F7A45 8%,var(--tapia))} .tile.baja.n3{background:color-mix(in srgb,#2F7A45 13%,var(--tapia))}
-#mosaico{grid-auto-rows:1fr}
+.g-cuerpo{grid-auto-rows:1fr;padding:6px 14px 16px}
+.g-cuerpo[hidden]{display:none}
+.mosaico{display:flex;flex-direction:column;gap:10px}
+.grupo{background:var(--tapia);border:1px solid var(--raya);border-radius:var(--r);transition:box-shadow .15s}
+.grupo.abierto{box-shadow:0 8px 22px rgba(0,0,0,.06);background:color-mix(in srgb,var(--plano-bg) 45%,var(--tapia))}
+.g-cab{display:grid;grid-template-columns:48px 190px minmax(0,1fr) 24px;gap:12px;align-items:center;width:100%;border:0;background:transparent;padding:12px 14px;cursor:pointer;text-align:left;color:var(--tinta);border-radius:var(--r)}
+.g-cab:hover{background:color-mix(in srgb,var(--anil) 5%,transparent)}
+.g-ico{width:48px;height:48px;border-radius:14px;background:var(--icono-bg);display:grid;place-items:center}
+.g-ico svg{width:34px;height:34px}
+.g-tit b{display:block;font-family:var(--font-display);font-size:19px;font-weight:800;letter-spacing:-.01em}
+.g-tit small{font-size:12.5px;color:var(--tinta-2)}
+.g-nuevo{font-style:normal;color:var(--nuevo);font-size:13px;vertical-align:2px}
+.g-chips{display:flex;gap:6px;flex-wrap:wrap;min-width:0}
+.chip-g{display:inline-flex;align-items:center;gap:5px;background:var(--cal);border:1px solid var(--raya);border-radius:999px;padding:3px 4px 3px 4px;font-size:13px;white-space:nowrap}
+.chip-g svg{width:20px;height:20px}
+.chip-g .cn{color:var(--tinta-2);font-weight:600}
+.pct.mini{font-family:var(--font-display);font-weight:800;font-size:12px;color:#fff;padding:2px 7px;border-radius:999px;font-variant-numeric:tabular-nums}
+.pct.mini.mal.n1{background:#F8D9DB;color:#8E1D25} .pct.mini.mal.n2{background:#D6545C} .pct.mini.mal.n3{background:#A81F29}
+.pct.mini.bien.n1{background:#D4EDDC;color:#1F5A33} .pct.mini.bien.n2{background:#4A9963} .pct.mini.bien.n3{background:#22693A}
+.pct.mini.n0,.pct.mini.plano{background:#8A8F9C}
+.g-flecha{font-size:20px;color:var(--tinta-2);transition:transform .2s;text-align:center}
+.grupo.abierto .g-flecha{transform:rotate(180deg)}
+.link-btn{border:0;background:none;color:var(--anil);font-weight:700;cursor:pointer;padding:0;margin-left:6px;text-decoration:underline;font:inherit;font-weight:700}
+@media (max-width:860px){.g-cab{grid-template-columns:44px minmax(0,1fr) 22px}.g-chips{grid-column:1/-1;grid-row:2}.g-flecha{grid-column:3;grid-row:1}}
 .tile h3{min-height:2.4em;display:flex;align-items:flex-end}
 .tile .cmp{min-height:2.6em;align-items:flex-start}
 .tile.n1::before{opacity:.35} .tile.n2::before{opacity:.7} .tile.n3::before{opacity:1}
@@ -889,10 +912,10 @@ footer li{break-inside:avoid;margin-bottom:4px}
 
     <section aria-labelledby="h-mosaico">
       <div class="mos-cab">
-        <div><h2 id="h-mosaico">Lo de hoy, de un vistazo</h2><p class="sub-m">Pulsa una tarjeta para ver su evolución y qué significa.</p></div>
+        <div><h2 id="h-mosaico">Lo de hoy, de un vistazo</h2><p class="sub-m">Abre un tema para ver sus tarjetas; pulsa una tarjeta para ver su evolución. <button type="button" class="link-btn" id="plegarTodo">Desplegar todo</button></p></div>
         <div class="modo-wrap"><span class="lbl">Comparar con:</span><div class="modo" role="group" aria-label="Comparar con"><button type="button" data-modo="ant" aria-pressed="true">El dato anterior</button><button type="button" data-modo="anio" aria-pressed="false">Hace un año</button></div></div>
       </div>
-      <div class="grid" id="mosaico"></div>
+      <div class="mosaico" id="mosaico"></div>
     </section>
 
     <section class="novedades" id="novedades" aria-labelledby="h-nov" hidden>

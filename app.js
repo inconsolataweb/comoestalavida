@@ -320,9 +320,16 @@ function explica(t,c,m){
   if(c.pt)return "Compara "+que+" ("+c.k+": <b>"+c.ref+"</b>). Ahora es <b>"+t.v+" "+t.u+"</b>: "+fmt(Math.abs(c.p),2)+" puntos "+dir+".";
   return "Compara "+t.t.toLowerCase()+" ("+"<b>"+t.v+" "+t.u+"</b>"+") "+que+" ("+c.k+(c.ref?": <b>"+c.ref+"</b>":"")+"). Diferencia: <b>"+(c.p>0?"+":"−")+fmt(Math.abs(c.p),1)+" %</b>.";
 }
+/* Las tarjetas van agrupadas por temas: cada grupo se pliega y enseña un resumen de una línea */
+var GRUPOS=[["luz","luz","La luz",["luz","recibo","horasluz"]],["coche","surtidor","El coche",["gasolina","diesel","brent","seguro"]],["calor","radiador","La calefacción",["gastur","butano","gasoleoc"]],
+  ["casa","casa","La casa y el banco",["alquiler","vivienda","euribor","cuota","bce","hipotecas","depositos"]],["sueldos","monedero","Sueldos y precios",["ipc","smi","pension","salario","paro"]],["compra","cesta","La compra y otros",["aceite","sello"]]];
+var CORTO={luz:"Luz hoy",recibo:"Recibo",horasluz:"Horas de luz",gasolina:"Gasolina",diesel:"Diésel",brent:"Brent",seguro:"Seguro",gastur:"Gas",butano:"Butano",gasoleoc:"Gasóleo C",alquiler:"Alquiler",vivienda:"Vivienda",euribor:"Euríbor",cuota:"Cuota",bce:"BCE",hipotecas:"Hipotecas",depositos:"Depósitos",ipc:"IPC",smi:"Salario mín.",pension:"Pensión",salario:"Salario medio",paro:"Paro",aceite:"Aceite",sello:"Sello"};
+var abiertos={};try{abiertos=JSON.parse(localStorage.getItem("celv-grupos")||"{}");}catch(e){}
+if(!Object.keys(abiertos).length)abiertos={luz:true};
+function guardarGrupos(){try{localStorage.setItem("celv-grupos",JSON.stringify(abiertos));}catch(e){}}
 function pintarTiles(){
   var nS=0,nB=0,nP=0;
-  $("mosaico").innerHTML=tiles.map(function(t,i){
+  var html1=tiles.map(function(t,i){
     var c=t[modo],st="plano",inten=0;
     if(c.p!==null&&c.p!==undefined){st=tono(estado(c.p,c.pt?0.05:0.5),t.bueno);}
     var fr=FRECUENTES.indexOf(t.blk)>=0;
@@ -332,11 +339,23 @@ function pintarTiles(){
       '<div class="fila-v"><div class="valor'+((t.v+t.u).length>10?" largo":"")+'">'+t.v+'<small>'+t.u+'</small></div>'+pctTag(c,t.bueno)+'</div>'+
       '<div class="cmp"><span class="ref">'+(modo==="anio"?"hace un año":"dato anterior")+' ('+c.k+(c.ref?": <b>"+c.ref+"</b>":"")+')</span></div>'+
       (t.sp?spark(t.sp,css("--anil")):"")+'<div class="nota"><span>'+t.n+'</span><u>Ver más</u></div></button>';
-  }).join("");
+  });
+  $("mosaico").innerHTML=GRUPOS.map(function(g){
+    var idx=g[3].map(function(id){return tiles.findIndex(function(t){return t.id===id;});}).filter(function(i){return i>=0;});
+    var gS=0,gB=0,hayNuevo=false;
+    var chips=idx.map(function(i){var t=tiles[i],c=t[modo],col=c.p===null||c.p===undefined?"plano":tono(estado(c.p,c.pt?0.05:0.5),t.bueno);if(col==="sube")gS++;else if(col==="baja")gB++;var fr=FRECUENTES.indexOf(t.blk)>=0;if(esHoy(t.act)||esNuevo(t.act,fr))hayNuevo=true;
+      return '<span class="chip-g">'+ico(t.ico)+'<span class="cn">'+CORTO[t.id]+'</span>'+pctTag(c,t.bueno).replace('class="pct','class="pct mini')+'</span>';}).join("");
+    var ab=!!abiertos[g[0]];
+    return '<section class="grupo'+(ab?' abierto':'')+'" data-g="'+g[0]+'"><button type="button" class="g-cab" aria-expanded="'+ab+'"><span class="g-ico">'+ico(g[1])+'</span><span class="g-tit"><b>'+g[2]+(hayNuevo?' <i class="g-nuevo" title="Hay datos nuevos">●</i>':'')+'</b><small>'+(gS?gS+(gS===1?' empeora':' empeoran'):'')+(gS&&gB?' · ':'')+(gB?gB+(gB===1?' mejora':' mejoran'):'')+(!gS&&!gB?'Sin cambios':'')+'</small></span><span class="g-chips">'+chips+'</span><span class="g-flecha" aria-hidden="true">▾</span></button>'+
+      '<div class="g-cuerpo grid"'+(ab?'':' hidden')+'>'+idx.map(function(i){return html1[i];}).join("")+'</div></section>';}).join("");
   $("veredicto").innerHTML=(nS?'<span class="b-mal" style="flex-grow:'+nS+'">▲ '+nS+(nS===1?' empeora':' empeoran')+'</span>':'')+(nP?'<span class="b-igual" style="flex-grow:'+nP+'" title="Sin cambio o sin dato">= '+nP+'</span>':'')+(nB?'<span class="b-bien" style="flex-grow:'+nB+'">▼ '+nB+(nB===1?' mejora':' mejoran')+'</span>':'');
   $("balanceSub").textContent=(modo==="anio"?"frente a hace un año":"frente al dato anterior")+" · "+tiles.length+" indicadores";
 }
 pintarTiles();
+$("mosaico").addEventListener("click",function(e){var b=e.target.closest(".g-cab");if(!b)return;var g=b.parentNode,k=g.getAttribute("data-g"),ab=b.getAttribute("aria-expanded")!=="true";abiertos[k]=ab;guardarGrupos();b.setAttribute("aria-expanded",String(ab));g.classList.toggle("abierto",ab);g.querySelector(".g-cuerpo").hidden=!ab;actualizarTodo();});
+function actualizarTodo(){var todos=GRUPOS.every(function(g){return abiertos[g[0]];});$("plegarTodo").textContent=todos?"Plegar todo":"Desplegar todo";}
+$("plegarTodo").addEventListener("click",function(){var todos=GRUPOS.every(function(g){return abiertos[g[0]];});GRUPOS.forEach(function(g){abiertos[g[0]]=!todos;});guardarGrupos();pintarTiles();actualizarTodo();});
+actualizarTodo();
 document.querySelectorAll(".modo button").forEach(function(b){b.addEventListener("click",function(){modo=b.getAttribute("data-modo");document.querySelectorAll(".modo button").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false");});pintarTiles();});});
 function verGlobo(tileEl){var t=tiles[+tileEl.getAttribute("data-i")];globo.innerHTML=explica(t,t[modo],modo)+'<br><span style="opacity:.8">'+proximo(t.blk)+'</span>';var r=tileEl.getBoundingClientRect();globo.classList.add("on");var gw=globo.offsetWidth,gh=globo.offsetHeight;var x=Math.max(8,Math.min(window.innerWidth-gw-8,r.left+r.width/2-gw/2));var y=r.top-gh-10;if(y<8)y=r.bottom+10;globo.style.left=x+"px";globo.style.top=y+"px";}
 $("mosaico").addEventListener("pointerover",function(e){if(e.target.closest("[data-tip]")){globo.classList.remove("on");return;}var t=e.target.closest(".tile");if(t)verGlobo(t);});
