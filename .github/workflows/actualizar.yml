@@ -2,7 +2,13 @@
 name: Actualizar datos
 on:
   schedule:
-    - cron: "20 6 * * *"   # 07:20 en Madrid en invierno (08:20 en verano)
+    # GitHub retrasa a veces las tareas programadas (hasta una hora), así que se lanza varias veces:
+    # si no hay nada nuevo, no hace commit. Horas en UTC (Madrid = UTC+1 en invierno, UTC+2 en verano).
+    - cron: "7 5 * * *"     # 06:07 Madrid (invierno)
+    - cron: "37 6 * * *"    # 07:37
+    - cron: "17 9 * * *"    # 10:17 (IPC, BCE y FRED publican a media mañana)
+    - cron: "47 13 * * *"   # 14:47
+    - cron: "37 19 * * *"   # 20:37: precios de la luz de mañana (REE publica hacia las 20:15)
   workflow_dispatch: {}
 permissions:
   contents: write
