@@ -860,7 +860,7 @@ $("recetas").innerHTML=recetasMes.slice(0,3).map(function(x,k){return '<div clas
 
 /* ---------- La Gaceta del Patio ---------- */
 function verbo(p){var m=Math.abs(p);if(m<0.5)return "se mantiene";if(p>0)return m>10?"se dispara un":m>3?"sube con fuerza, un":"sube un";return m>10?"se desploma un":m>3?"cae un":"baja un";}
-function titular(t){var c=t.ant;if(c.pt)return cap(t.t)+(Math.abs(c.p)<0.05?" se mantiene en el "+t.v+" %":(c.p>0?" sube ":" baja ")+fmt(Math.abs(c.p),2).replace(/,?0+$/,"")+" puntos, hasta el "+t.v+" %");var v=verbo(c.p);return cap(t.t)+" "+v+(v==="se mantiene"?"":" "+fmt(Math.abs(c.p),1)+" %");}
+function titular(t){var c=t.ant;if(t.u==="% en un año"){var vv=parseFloat(t.v.replace(",","."));return vv<0?cap(t.t)+": un "+fmt(-vv,1)+" % más barato que hace un año":vv<0.5?cap(t.t)+": igual que hace un año":cap(t.t)+" sube un "+t.v+" % en un año";}if(c.pt)return cap(t.t)+(Math.abs(c.p)<0.05?" se mantiene en el "+t.v+" %":(c.p>0?" sube ":" baja ")+fmt(Math.abs(c.p),2).replace(/,?0+$/,"")+" puntos, hasta el "+t.v+" %");var v=verbo(c.p);return cap(t.t)+" "+v+(v==="se mantiene"?"":" "+fmt(Math.abs(c.p),1)+" %");}
 function tagG(c,bueno){var col=tono(estado(c.p,c.pt?0.05:0.5),bueno);return '<span class="g-tag '+(col==="sube"?"mal":col==="baja"?"bien":"plano")+'">'+(c.p>0?"+":c.p<0?"−":"")+fmt(Math.abs(c.p),c.pt?2:1)+(c.pt?" pt":" %")+'</span>';}
 function porId(id){return tiles.filter(function(t){return t.id===id;})[0];}
 /* El tiempo de los precios: sol si baja, tormenta si sube mucho (para el bolsillo) */
@@ -870,10 +870,29 @@ function pintarGaceta(){
   $("gFecha").textContent=largo(hoyISO).replace(/^./,function(c){return c.toUpperCase();});
   var efe=efemHoy[0],cur=P.curiosidades.length?P.curiosidades[diaN%P.curiosidades.length]:null;
   $("gFranja").innerHTML='<div><b class="k">'+(fiestaHoy.length?"Hoy es fiesta":"Santoral")+'</b>'+(fiestaHoy.length?cap(fiestaHoy[0].nombre)+" en "+fiestaHoy[0].donde+". ":"")+(santoHoy?"Hoy es "+santoHoy+".":"Felicidades a quien celebre hoy su santo.")+'</div><div><b class="k">El refrán del día</b>'+(refranHoy?"«"+refranHoy[0]+"»":"")+'</div><div><b class="k">'+(efe?"Tal día como hoy, "+efe[0]:"De la hemeroteca")+'</b>'+(efe?efe[1]:(cur?cur[0]:""))+'</div>';
-  var cands=tiles.filter(function(t){return t.ant.p!==null&&t.ant.p!==undefined&&!t.ant.pt;});
-  var orden=cands.slice().sort(function(a,b){return Math.abs(b.ant.p)-Math.abs(a.ant.p);});
+  /* La portada de La Gaceta cambia cada día: manda lo que ha llegado nuevo hoy (o en los últimos días),
+     después lo que más se mueve, con un poco de azar del día para no repetir. La luz solo abre
+     el periódico si hay un vuelco de verdad y no hay otra novedad; y como mucho sale una vez. */
+  var LUZF=["luz","horasluz"],GRP={};GRUPOS.forEach(function(g){g[3].forEach(function(id){GRP[id]=g[0];});});
+  function azar(s){var x=Math.sin(diaN*12.9898+s.length*78.233+s.charCodeAt(0)*3.1)*43758.5453;return x-Math.floor(x);}
+  var cands=tiles.filter(function(t){return t.ant.p!==null&&t.ant.p!==undefined;});
+  function puntua(o){/* o=0 hoy, o=1 ayer: así se sabe qué abrió ayer y no se repite */
+    var r=[];cands.forEach(function(t){var fr=FRECUENTES.indexOf(t.blk)>=0,d=dias(t.act||"2000-01-01",hoyISO)-o;if(!fr&&d<0)return;
+      var mag=t.ant.pt?Math.abs(t.ant.p)*6:Math.abs(t.ant.p),s=Math.min(mag,30);
+      if(mag<0.3)s-=10;
+      if(!fr&&d===0)s+=60;else if(!fr&&d<=3)s+=18-d*4;
+      if(LUZF.indexOf(t.id)>=0)s=Math.abs(t.ant.p)>=30?s:s*0.25;
+      var x=Math.sin((diaN-o)*12.9898+t.id.length*78.233+t.id.charCodeAt(0)*3.1+t.id.charCodeAt(t.id.length-1)*7.7)*43758.5453;
+      s+=(x-Math.floor(x))*22;r.push([t,s]);});
+    return r.sort(function(a,b){return b[1]-a[1];}).map(function(x){return x[0];});}
+  var orden=puntua(0),ayer=puntua(1)[0];
+  if(ayer&&orden[0]===ayer&&orden.length>1)orden.push(orden.shift());
+  var usados={},luzYa=false,elegidas=[];
+  orden.forEach(function(t){if(elegidas.length>=4)return;var g=GRP[t.id]||t.sec,esLuz=LUZF.indexOf(t.id)>=0||t.id==="recibo";
+    if(esLuz&&luzYa)return;if(usados[g]&&elegidas.length<4&&orden.length>8)return;usados[g]=1;if(esLuz)luzYa=true;elegidas.push(t);});
+  orden=elegidas;
   var prin=orden[0],c=prin.ant;
-  $("gPrincipal").innerHTML='<div class="antetitulo">'+(SECN[prin.sec]||"")+' · '+(esNuevo(prin.act,FRECUENTES.indexOf(prin.blk)>=0)||esHoy(prin.act)?"Dato nuevo":"El dato del día")+'</div><h2>'+titular(prin)+'</h2><div class="g-grande"><span class="num">'+prin.v+'<small>'+prin.u+'</small></span>'+tagG(c,prin.bueno)+'</div><div class="chart" id="gChart"></div>';
+  $("gPrincipal").innerHTML='<div class="antetitulo">'+((GRUPOS.filter(function(g){return g[3].indexOf(prin.id)>=0;})[0]||[0,0,SECN[prin.sec]||""])[2])+' · '+(esNuevo(prin.act,FRECUENTES.indexOf(prin.blk)>=0)||esHoy(prin.act)?"Dato nuevo":"El dato del día")+'</div><h2>'+titular(prin)+'</h2><div class="g-grande"><span class="num">'+prin.v+'<small>'+prin.u+'</small></span>'+tagG(c,prin.bueno)+'</div><div class="chart" id="gChart"></div>';
   prin.graf($("gChart"));
   $("gRemedios").innerHTML='<div class="bocata">'+expl(prin,c,"ant")+'</div>'+Remedios.figura({edad:81,anio:2026,actividad:"periodico"});
   var cats=[["luz","Luz","luz"],["diesel","Gasolinera","surtidor"],["gastur","Calefacción","radiador"],["cesta","La compra","cesta"],["alquiler","Alquiler","llave"],["euribor","Hipoteca","hipoteca"],["ipc","Precios","monedero"],["paro","Empleo","maletin"]];
