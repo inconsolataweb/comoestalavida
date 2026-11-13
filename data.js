@@ -2,7 +2,7 @@
    Formato: window.CELV = { ...JSON... };  Fechas en ISO (AAAA-MM-DD).
    "actualizado" = día en que se publicó o cambió el dato: si coincide con hoy, la web muestra la etiqueta «hoy». */
 window.CELV = {
-  "generado": "2026-11-13T08:53:45+01:00",
+  "generado": "2026-11-13T11:19:10+01:00",
   "luz": {
     "fecha": "2026-11-13",
     "actualizado": "2026-11-13",
@@ -390,8 +390,8 @@ window.CELV = {
       ],
       [
         "13 nov",
-        1.628,
-        1.839
+        1.626,
+        1.838
       ]
     ],
     "hace_un_anio": {
@@ -1847,93 +1847,93 @@ window.CELV = {
     }
   },
   "rubricas": {
-    "fecha": "2026-09-28",
-    "actualizado": "2026-11-09",
-    "mes": "septiembre 2026",
+    "fecha": "2026-10-28",
+    "actualizado": "2026-11-13",
+    "mes": "octubre 2026",
     "items": [
       [
         "filete",
         "Carne de vacuno",
-        7.9,
-        -0.1
+        5.6,
+        0.4
       ],
       [
         "chuleta",
         "Carne de cordero",
-        6.3,
-        1.4
+        7.0,
+        1.2
       ],
       [
         "jamon",
         "Carne de cerdo",
-        -1.6,
-        0.0
+        -1.8,
+        -0.1
       ],
       [
         "muslo",
         "Carne de pollo",
-        1.4,
-        0.7
+        1.6,
+        0.4
       ],
       [
         "pescado",
         "Pescado fresco y congelado",
-        4.5,
-        0.4
+        4.8,
+        1.1
       ],
       [
         "gamba",
         "Marisco y conservas de pescado",
-        2.7,
-        -0.4
+        2.8,
+        0.1
       ],
       [
         "huevos",
         "Huevos",
-        12.3,
-        0.0
+        7.1,
+        0.2
       ],
       [
         "leche",
         "Leche",
-        -0.3,
-        -0.3
+        -1.0,
+        -0.1
       ],
       [
         "queso",
         "Lácteos",
         0.3,
-        -0.1
+        0.4
       ],
       [
         "manzana",
         "Fruta fresca",
-        9.6,
-        -0.7
+        9.0,
+        11.4
       ],
       [
         "lechuga",
         "Verduras y legumbres frescas",
-        9.8,
-        8.7
+        12.4,
+        2.1
       ],
       [
         "pan",
         "Pan",
-        0.9,
-        -0.1
+        1.1,
+        0.2
       ],
       [
         "cafe",
         "Café, cacao e infusiones",
-        -2.2,
-        -0.8
+        -3.1,
+        0.7
       ],
       [
         "azucar",
         "Azúcar",
-        -2.9,
-        0.3
+        -4.3,
+        -0.4
       ]
     ],
     "fuente": {
@@ -2056,10 +2056,6 @@ window.CELV = {
         4.6,
         [
           [
-            "sep 25",
-            2.2
-          ],
-          [
             "oct 25",
             2.2
           ],
@@ -2106,18 +2102,18 @@ window.CELV = {
           [
             "sep 26",
             4.6
+          ],
+          [
+            "oct 26",
+            4.6
           ]
         ]
       ],
       [
         "basura",
         "Recogida de basuras",
-        6.9,
+        11.2,
         [
-          [
-            "sep 25",
-            30.3
-          ],
           [
             "oct 25",
             30.3
@@ -2165,18 +2161,18 @@ window.CELV = {
           [
             "sep 26",
             6.9
+          ],
+          [
+            "oct 26",
+            11.2
           ]
         ]
       ],
       [
         "casa",
         "Gastos de comunidad",
-        3.0,
+        3.3,
         [
-          [
-            "sep 25",
-            2.3
-          ],
           [
             "oct 25",
             2.6
@@ -2224,18 +2220,18 @@ window.CELV = {
           [
             "sep 26",
             3.0
+          ],
+          [
+            "oct 26",
+            3.3
           ]
         ]
       ],
       [
         "telefono",
         "Teléfono e internet",
-        2.3,
+        3.1,
         [
-          [
-            "sep 25",
-            1.9
-          ],
           [
             "oct 25",
             2.5
@@ -2283,6 +2279,10 @@ window.CELV = {
           [
             "sep 26",
             2.3
+          ],
+          [
+            "oct 26",
+            3.1
           ]
         ]
       ],
@@ -2291,10 +2291,6 @@ window.CELV = {
         "Autobús y metro",
         0.8,
         [
-          [
-            "sep 25",
-            26.7
-          ],
           [
             "oct 25",
             26.7
@@ -2342,18 +2338,18 @@ window.CELV = {
           [
             "sep 26",
             0.8
+          ],
+          [
+            "oct 26",
+            0.8
           ]
         ]
       ],
       [
         "tren",
         "Tren",
-        -11.2,
+        -11.1,
         [
-          [
-            "sep 25",
-            5.0
-          ],
           [
             "oct 25",
             17.9
@@ -2401,6 +2397,10 @@ window.CELV = {
           [
             "sep 26",
             -11.2
+          ],
+          [
+            "oct 26",
+            -11.1
           ]
         ]
       ],
@@ -2409,10 +2409,6 @@ window.CELV = {
         "Seguro de salud",
         8.9,
         [
-          [
-            "sep 25",
-            10.4
-          ],
           [
             "oct 25",
             10.4
@@ -2460,18 +2456,18 @@ window.CELV = {
           [
             "sep 26",
             8.9
+          ],
+          [
+            "oct 26",
+            8.9
           ]
         ]
       ],
       [
         "llave",
         "Alquileres (IPC)",
-        2.6,
+        2.7,
         [
-          [
-            "sep 25",
-            2.5
-          ],
           [
             "oct 25",
             2.4
@@ -2519,12 +2515,16 @@ window.CELV = {
           [
             "sep 26",
             2.6
+          ],
+          [
+            "oct 26",
+            2.7
           ]
         ]
       ]
     ],
-    "fecha": "2026-09-28",
-    "actualizado": "2026-11-09",
+    "fecha": "2026-10-28",
+    "actualizado": "2026-11-13",
     "fuente": {
       "nombre": "INE, IPC por subclases",
       "url": "https://www.ine.es/"
