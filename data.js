@@ -2,7 +2,7 @@
    Formato: window.CELV = { ...JSON... };  Fechas en ISO (AAAA-MM-DD).
    "actualizado" = día en que se publicó o cambió el dato: si coincide con hoy, la web muestra la etiqueta «hoy». */
 window.CELV = {
-  "generado": "2026-11-13T15:34:12+01:00",
+  "generado": "2026-11-13T21:27:54+01:00",
   "luz": {
     "fecha": "2026-11-13",
     "actualizado": "2026-11-13",
@@ -390,8 +390,8 @@ window.CELV = {
       ],
       [
         "13 nov",
-        1.622,
-        1.836
+        1.621,
+        1.835
       ]
     ],
     "hace_un_anio": {
