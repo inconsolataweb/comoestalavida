@@ -2,7 +2,7 @@
    Formato: window.CELV = { ...JSON... };  Fechas en ISO (AAAA-MM-DD).
    "actualizado" = día en que se publicó o cambió el dato: si coincide con hoy, la web muestra la etiqueta «hoy». */
 window.CELV = {
-  "generado": "2026-11-27T03:23:31+01:00",
+  "generado": "2026-11-27T15:54:51+01:00",
   "luz": {
     "fecha": "2026-11-27",
     "actualizado": "2026-11-27",
@@ -390,8 +390,8 @@ window.CELV = {
       ],
       [
         "27 nov",
-        1.505,
-        1.737
+        1.5,
+        1.732
       ]
     ],
     "hace_un_anio": {
@@ -602,15 +602,10 @@ window.CELV = {
     ]
   },
   "ipc": {
-    "fecha": "2026-10-28",
-    "actualizado": "2026-11-09",
+    "fecha": "2026-11-28",
+    "actualizado": "2026-11-27",
     "provisional": false,
     "serie": [
-      [
-        "mar",
-        3.4,
-        2.9
-      ],
       [
         "abr",
         3.2,
@@ -645,9 +640,14 @@ window.CELV = {
         "oct",
         4.9,
         3.1
+      ],
+      [
+        "nov",
+        4.1,
+        2.6
       ]
     ],
-    "hace_un_anio": 3.1,
+    "hace_un_anio": 3.0,
     "fuente": {
       "nombre": "INE",
       "url": "https://www.ine.es/"
